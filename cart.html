@@ -39,10 +39,31 @@
             </div>
         </div>
 
-        <div id="cart-summary" class="hidden mt-8 bg-white rounded-[24px] p-6 shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-lg font-medium">Total</span>
-                <span id="cart-total" class="text-2xl font-bold text-[#6B7A4F]">0 FCFA</span>
+        <div id="cart-summary" class="hidden mt-8 bg-white rounded-[24px] p-6 shadow-sm space-y-5">
+            <!-- Adresse de livraison -->
+            <h3 class="font-bold text-base text-[#1A1A1A]">Adresse de livraison</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <input id="street" type="text" placeholder="Rue / Quartier" 
+                    class="border border-[#E3E1DC] rounded-full px-4 py-2 text-sm focus:outline-[#6B7A4F] col-span-full">
+                <input id="city" type="text" placeholder="Ville (ex: Dakar)" 
+                    class="border border-[#E3E1DC] rounded-full px-4 py-2 text-sm focus:outline-[#6B7A4F]">
+                <input id="zipcode" type="text" placeholder="Code postal (optionnel)" 
+                    class="border border-[#E3E1DC] rounded-full px-4 py-2 text-sm focus:outline-[#6B7A4F]">
+            </div>
+            <!-- Résumé prix -->
+            <div class="border-t border-[#EAE8E3] pt-4 space-y-2 text-sm">
+                <div class="flex justify-between text-[#686663]">
+                    <span>Sous-total</span>
+                    <span id="cart-subtotal">0 FCFA</span>
+                </div>
+                <div class="flex justify-between text-[#686663]">
+                    <span>Livraison estimée</span>
+                    <span id="cart-delivery">1 500 FCFA</span>
+                </div>
+                <div class="flex justify-between items-center font-bold text-base text-[#1A1A1A] pt-2 border-t border-[#EAE8E3]">
+                    <span>Total</span>
+                    <span id="cart-total" class="text-[#6B7A4F] text-xl">0 FCFA</span>
+                </div>
             </div>
             <button onclick="checkout()" class="w-full bg-[#6B7A4F] hover:bg-[#576440] text-white py-3 rounded-full font-medium transition shadow-md">
                 Passer la commande <i class="fa-solid fa-arrow-right ml-2"></i>
