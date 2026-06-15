@@ -1,9 +1,10 @@
 // api.js — Connexion au backend réel
 
-const API_BASE_URL = 'https://mon-api-vnhx.onrender.com/api';
+const API_BASE_URL = 'https://mon-api-vnhx.onrender.com/api'; 
+
 // ── Auth ──────────────────────────────────────
 async function registerUser({ name, email, password }) {
-    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+    const res = await fetch(`${API_BASE_URL}/register`, {  // ← PAS /auth/register
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
@@ -13,20 +14,22 @@ async function registerUser({ name, email, password }) {
 }
 
 async function loginUser({ email, password }) {
-    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    const res = await fetch(`${API_BASE_URL}/login`, {  // ← PAS /auth/login
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     });
     if (!res.ok) throw new Error((await res.json()).error || 'Erreur connexion');
-    return res.json(); // { token, user }
+    const data = await res.json();
+    localStorage.setItem('token', data.token);
+    return data;
 }
 
 // ── Products ──────────────────────────────────
 async function getProducts(params = '') {
     const res = await fetch(`${API_BASE_URL}/products?${params}`);
     if (!res.ok) throw new Error('Erreur chargement produits');
-    return res.json(); // { products, total }
+    return res.json();
 }
 
 async function getProduct(id) {
@@ -42,7 +45,7 @@ async function getCategories() {
     return res.json();
 }
 
-// ── Cart (avec authentification) ───────────────
+// ── Cart ──────────────────────────────────────
 async function addToCart({ productId, quantity = 1 }) {
     const token = localStorage.getItem('token');
     const res = await fetch(`${API_BASE_URL}/cart`, {
