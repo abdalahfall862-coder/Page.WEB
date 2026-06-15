@@ -1,12 +1,34 @@
 // api.js — Connexion au backend réel
 
-const API_BASE_URL = 'https://mon-api-vnhx.onrender.com/api'; 
+const API_BASE_URL = 'https://mon-api-vnhx.onrender.com/api';
+
+function authHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+}
+
+async function apiFetch(url, options = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+        const res = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeout);
+        return res;
+    } catch (e) {
+        clearTimeout(timeout);
+        if (e.name === 'AbortError') throw new Error('Le serveur met du temps à répondre. Réessayez.');
+        throw e;
+    }
+}
 
 // ── Auth ──────────────────────────────────────
 async function registerUser({ name, email, password }) {
-    const res = await fetch(`${API_BASE_URL}/register`, {  // ← PAS /auth/register
+    const res = await apiFetch(`${API_BASE_URL}/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ name, email, password })
     });
     if (!res.ok) throw new Error((await res.json()).error || 'Erreur inscription');
@@ -14,9 +36,9 @@ async function registerUser({ name, email, password }) {
 }
 
 async function loginUser({ email, password }) {
-    const res = await fetch(`${API_BASE_URL}/login`, {  // ← PAS /auth/login
+    const res = await apiFetch(`${API_BASE_URL}/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ email, password })
     });
     if (!res.ok) throw new Error((await res.json()).error || 'Erreur connexion');
@@ -27,33 +49,29 @@ async function loginUser({ email, password }) {
 
 // ── Products ──────────────────────────────────
 async function getProducts(params = '') {
-    const res = await fetch(`${API_BASE_URL}/products?${params}`);
+    const res = await apiFetch(`${API_BASE_URL}/products?${params}`);
     if (!res.ok) throw new Error('Erreur chargement produits');
     return res.json();
 }
 
 async function getProduct(id) {
-    const res = await fetch(`${API_BASE_URL}/products/${id}`);
+    const res = await apiFetch(`${API_BASE_URL}/products/${id}`);
     if (!res.ok) throw new Error('Produit introuvable');
     return res.json();
 }
 
 // ── Categories ────────────────────────────────
 async function getCategories() {
-    const res = await fetch(`${API_BASE_URL}/categories`);
+    const res = await apiFetch(`${API_BASE_URL}/categories`);
     if (!res.ok) throw new Error('Erreur chargement catégories');
     return res.json();
 }
 
 // ── Cart ──────────────────────────────────────
 async function addToCart({ productId, quantity = 1 }) {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE_URL}/cart`, {
+    const res = await apiFetch(`${API_BASE_URL}/cart/add`, {  // ✅ /cart/add
         method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
+        headers: authHeaders(),
         body: JSON.stringify({ productId, quantity })
     });
     if (!res.ok) throw new Error('Erreur ajout panier');
@@ -61,22 +79,17 @@ async function addToCart({ productId, quantity = 1 }) {
 }
 
 async function getCartFull() {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE_URL}/cart`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+    const res = await apiFetch(`${API_BASE_URL}/cart`, {
+        headers: authHeaders()
     });
     if (!res.ok) throw new Error('Erreur chargement panier');
     return res.json();
 }
 
 async function updateCartItem(productId, quantity) {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE_URL}/cart/${productId}`, {
+    const res = await apiFetch(`${API_BASE_URL}/cart/${productId}`, {
         method: 'PUT',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
+        headers: authHeaders(),
         body: JSON.stringify({ quantity })
     });
     if (!res.ok) throw new Error('Erreur mise à jour');
@@ -84,20 +97,18 @@ async function updateCartItem(productId, quantity) {
 }
 
 async function removeFromCart(productId) {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE_URL}/cart/${productId}`, {
+    const res = await apiFetch(`${API_BASE_URL}/cart/${productId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: authHeaders()
     });
     if (!res.ok) throw new Error('Erreur suppression');
     return res.json();
 }
 
 async function clearCart() {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API_BASE_URL}/cart`, {
+    const res = await apiFetch(`${API_BASE_URL}/cart`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: authHeaders()
     });
     if (!res.ok) throw new Error('Erreur vidage');
     return res.json();
@@ -107,13 +118,8 @@ async function clearCart() {
 async function updateCartCount() {
     const badge = document.getElementById('cart-count');
     if (!badge) return;
-    
     const token = localStorage.getItem('token');
-    if (!token) {
-        badge.classList.add('hidden');
-        return;
-    }
-    
+    if (!token) { badge.classList.add('hidden'); return; }
     try {
         const cart = await getCartFull();
         const count = cart.items?.reduce((sum, i) => sum + i.quantity, 0) || 0;
