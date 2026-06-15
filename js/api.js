@@ -1,7 +1,6 @@
 // api.js — Connexion au backend réel
 
-const API_BASE_URL = 'mon-api-vnhx.onrender.com/api-docs'; 
-
+const API_BASE_URL = 'https://mon-api-vnhx.onrender.com/api';
 // ── Auth ──────────────────────────────────────
 async function registerUser({ name, email, password }) {
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
