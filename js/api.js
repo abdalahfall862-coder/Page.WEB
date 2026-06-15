@@ -1,127 +1,123 @@
-// api.js — Données locales (localStorage)
+// api.js — Connexion au backend réel
 
-// ── Données de démonstration ─────────────────
-const DEMO_PRODUCTS = [
-    { id: '1', name: 'Sac à Main Premium', price: 15000, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop', category: '1' },
-    { id: '2', name: 'Montre Élégante', price: 12000, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop', category: '2' },
-    { id: '3', name: 'Chaussures Sport', price: 18000, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop', category: '3' },
-    { id: '4', name: 'Lunettes de Soleil', price: 5000, image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&auto=format&fit=crop', category: '4' },
-    { id: '5', name: 'Parfum Luxe', price: 152000, image: 'assets/parfum.jpeg', category: '5' },
-    { id: '6', name: 'Ceinture Cuir', price: 4000, image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400&auto=format&fit=crop', category: '1' },
-    { id: '7', name: 'Bracelet Or', price: 85000, image: 'assets/barcelet en or.jpeg', category: '2' },
-    { id: '8', name: 'Chemise Lin', price: 12000, image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&auto=format&fit=crop', category: '3' },
-];
-
-const DEMO_CATEGORIES = [
-    { id: '1', name: 'Sacs', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&auto=format&fit=crop' },
-    { id: '2', name: 'Bijoux', image: 'assets/bijoux.jpeg' },
-    { id: '3', name: 'Mode', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&auto=format&fit=crop' },
-    { id: '4', name: 'Optique', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=100&auto=format&fit=crop' },
-    { id: '5', name: 'Beauté', image: 'assets/beauté.jpeg' },
-    { id: '6', name: 'Accessoires', image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=100&auto=format&fit=crop' },
-];
-
-// ── Helpers localStorage ──────────────────────
-function getUsers()    { return JSON.parse(localStorage.getItem('ms_users') || '[]'); }
-function saveUsers(u)  { localStorage.setItem('ms_users', JSON.stringify(u)); }
-function getCart()     { return JSON.parse(localStorage.getItem('ms_cart') || '[]'); }
-function saveCart(c)   { localStorage.setItem('ms_cart', JSON.stringify(c)); }
+const API_BASE_URL = 'mon-api-vnhx.onrender.com/api-docs'; 
 
 // ── Auth ──────────────────────────────────────
 async function registerUser({ name, email, password }) {
-    const users = getUsers();
-    if (users.find(u => u.email === email)) {
-        throw new Error('Cet email est déjà utilisé.');
-    }
-    const user = { id: Date.now().toString(), name, email, password };
-    users.push(user);
-    saveUsers(users);
-    return { message: 'Inscription réussie !' };
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Erreur inscription');
+    return res.json();
 }
 
 async function loginUser({ email, password }) {
-    const users = getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
-    if (!user) throw new Error('Email ou mot de passe incorrect.');
-    const token = btoa(JSON.stringify({ id: user.id, email: user.email }));
-    return { token, user: { id: user.id, name: user.name, email: user.email } };
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Erreur connexion');
+    return res.json(); // { token, user }
 }
 
 // ── Products ──────────────────────────────────
 async function getProducts(params = '') {
-    const urlParams = new URLSearchParams(params);
-    const limit = parseInt(urlParams.get('limit')) || DEMO_PRODUCTS.length;
-    const category = urlParams.get('category');
-    const search = urlParams.get('search') || '';
-
-    let products = [...DEMO_PRODUCTS];
-    if (category) products = products.filter(p => p.category === category);
-    if (search)   products = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
-
-    return { products: products.slice(0, limit), total: products.length };
+    const res = await fetch(`${API_BASE_URL}/products?${params}`);
+    if (!res.ok) throw new Error('Erreur chargement produits');
+    return res.json(); // { products, total }
 }
 
 async function getProduct(id) {
-    const product = DEMO_PRODUCTS.find(p => p.id === id);
-    if (!product) throw new Error('Produit introuvable');
-    return product;
+    const res = await fetch(`${API_BASE_URL}/products/${id}`);
+    if (!res.ok) throw new Error('Produit introuvable');
+    return res.json();
 }
 
 // ── Categories ────────────────────────────────
 async function getCategories() {
-    return DEMO_CATEGORIES;
+    const res = await fetch(`${API_BASE_URL}/categories`);
+    if (!res.ok) throw new Error('Erreur chargement catégories');
+    return res.json();
 }
 
-// ── Cart ──────────────────────────────────────
+// ── Cart (avec authentification) ───────────────
 async function addToCart({ productId, quantity = 1 }) {
-    const cart = getCart();
-    const existing = cart.find(i => i.productId === productId);
-    if (existing) {
-        existing.quantity += quantity;
-    } else {
-        cart.push({ productId, quantity });
-    }
-    saveCart(cart);
-    return { message: 'Ajouté au panier' };
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/cart`, {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ productId, quantity })
+    });
+    if (!res.ok) throw new Error('Erreur ajout panier');
+    return res.json();
 }
 
 async function getCartFull() {
-    const cart = getCart();
-    const items = cart.map(i => {
-        const product = DEMO_PRODUCTS.find(p => p.id === i.productId);
-        return { ...i, product };
-    }).filter(i => i.product);
-    return { items };
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/cart`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Erreur chargement panier');
+    return res.json();
 }
 
 async function updateCartItem(productId, quantity) {
-    const cart = getCart();
-    const item = cart.find(i => i.productId === productId);
-    if (item) item.quantity = quantity;
-    saveCart(cart);
-    return { message: 'Mis à jour' };
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/cart/${productId}`, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ quantity })
+    });
+    if (!res.ok) throw new Error('Erreur mise à jour');
+    return res.json();
 }
 
 async function removeFromCart(productId) {
-    const cart = getCart().filter(i => i.productId !== productId);
-    saveCart(cart);
-    return { message: 'Supprimé' };
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/cart/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Erreur suppression');
+    return res.json();
 }
 
 async function clearCart() {
-    saveCart([]);
-    return { message: 'Panier vidé' };
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE_URL}/cart`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Erreur vidage');
+    return res.json();
 }
 
 // ── Badge panier ──────────────────────────────
 async function updateCartCount() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    const cart = getCart();
-    const count = cart.reduce((sum, i) => sum + i.quantity, 0);
     const badge = document.getElementById('cart-count');
-    if (badge) {
+    if (!badge) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        badge.classList.add('hidden');
+        return;
+    }
+    
+    try {
+        const cart = await getCartFull();
+        const count = cart.items?.reduce((sum, i) => sum + i.quantity, 0) || 0;
         badge.textContent = count;
         badge.classList.toggle('hidden', count === 0);
+    } catch (e) {
+        console.error('Erreur badge:', e);
     }
 }
