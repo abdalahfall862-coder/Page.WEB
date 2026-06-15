@@ -3,21 +3,21 @@
 // ── Données de démonstration ─────────────────
 const DEMO_PRODUCTS = [
     { id: '1', name: 'Sac à Main Premium', price: 15000, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop', category: '1' },
-    { id: '2', name: 'Montre Élégante', price: 25000, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop', category: '2' },
+    { id: '2', name: 'Montre Élégante', price: 12000, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop', category: '2' },
     { id: '3', name: 'Chaussures Sport', price: 18000, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop', category: '3' },
-    { id: '4', name: 'Lunettes de Soleil', price: 8000, image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&auto=format&fit=crop', category: '4' },
-    { id: '5', name: 'Parfum Luxe', price: 22000, image: 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=400&auto=format&fit=crop', category: '5' },
-    { id: '6', name: 'Ceinture Cuir', price: 9000, image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400&auto=format&fit=crop', category: '1' },
-    { id: '7', name: 'Bracelet Or', price: 35000, image: 'https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=400&auto=format&fit=crop', category: '2' },
+    { id: '4', name: 'Lunettes de Soleil', price: 5000, image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&auto=format&fit=crop', category: '4' },
+    { id: '5', name: 'Parfum Luxe', price: 152000, image: 'assets/parfum.jpeg', category: '5' },
+    { id: '6', name: 'Ceinture Cuir', price: 4000, image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400&auto=format&fit=crop', category: '1' },
+    { id: '7', name: 'Bracelet Or', price: 85000, image: 'assets/barcelet en or.jpeg', category: '2' },
     { id: '8', name: 'Chemise Lin', price: 12000, image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&auto=format&fit=crop', category: '3' },
 ];
 
 const DEMO_CATEGORIES = [
     { id: '1', name: 'Sacs', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&auto=format&fit=crop' },
-    { id: '2', name: 'Bijoux', image: 'https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=100&auto=format&fit=crop' },
+    { id: '2', name: 'Bijoux', image: 'assets/bijoux.jpeg' },
     { id: '3', name: 'Mode', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&auto=format&fit=crop' },
     { id: '4', name: 'Optique', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=100&auto=format&fit=crop' },
-    { id: '5', name: 'Beauté', image: 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=100&auto=format&fit=crop' },
+    { id: '5', name: 'Beauté', image: 'assets/beauté.jpeg' },
     { id: '6', name: 'Accessoires', image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=100&auto=format&fit=crop' },
 ];
 
