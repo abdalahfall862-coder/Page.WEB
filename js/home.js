@@ -24,12 +24,13 @@ async function loadFeaturedProducts() {
     try {
         const data = await getProducts('limit=5');
         container.innerHTML = data.products.map(product => `
-            <div class="bg-white rounded-[24px] p-4 shadow-sm hover:shadow-md transition">
-                <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover rounded-[16px] mb-3">
+            <div class="bg-white rounded-[24px] p-4 shadow-sm hover:shadow-md transition group">
+                <div class="relative overflow-hidden rounded-[16px] mb-3">
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
                 <h3 class="font-semibold text-sm text-[#1A1A1A]">${product.name}</h3>
                 <p class="text-[#6B7A4F] font-bold mt-1">${product.price.toLocaleString()} FCFA</p>
-                <button onclick="addToCartNow('${product.id}')"
-                    class="w-full mt-2 bg-[#F4F3EF] hover:bg-[#6B7A4F] hover:text-white text-[#2C2B2A] py-2 rounded-full text-xs font-medium transition">
+                <button onclick="addToCartNow('${product.id}')" class="w-full mt-2 bg-[#F4F3EF] hover:bg-[#6B7A4F] hover:text-white text-[#2C2B2A] py-2 rounded-full text-xs font-medium transition">
                     <i class="fa-solid fa-plus mr-1"></i> Ajouter
                 </button>
             </div>
@@ -42,26 +43,27 @@ async function loadFeaturedProducts() {
 async function addToCartNow(productId) {
     const token = localStorage.getItem('token');
     if (!token) {
-        alert('Connectez-vous d\'abord !');
+        alert("Connectez-vous d'abord !");
         window.location.href = 'login.html';
         return;
     }
     try {
         await addToCart({ productId, quantity: 1 });
         await updateCartCount();
-        // Toast discret au lieu d'un alert
-        showToast('Ajouté au panier !');
+        showToast('✅ Ajouté au panier !');
     } catch (error) {
         alert(error.message);
     }
 }
 
 function showToast(msg) {
+    const existing = document.querySelector('.ms-toast');
+    if (existing) existing.remove();
     const toast = document.createElement('div');
+    toast.className = 'ms-toast fixed bottom-6 right-6 bg-[#1A1A1A] text-white px-5 py-3 rounded-full shadow-lg text-sm font-medium z-50';
     toast.textContent = msg;
-    toast.className = 'fixed bottom-6 right-6 bg-[#6B7A4F] text-white px-5 py-3 rounded-full text-sm shadow-lg z-50 transition-opacity';
     document.body.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 2000);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 2000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
