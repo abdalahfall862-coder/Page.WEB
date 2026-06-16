@@ -13,11 +13,11 @@ async function loadProducts() {
     const urlCategory = urlParams.get('category');
 
     if (urlCategory && !category) {
-        const select = document.getElementById('category-filter');
-        if (select) select.value = urlCategory;
-        params.append('category', urlCategory);
+    const select = document.getElementById('category-filter');
+    if (select) select.value = urlCategory;
+    params.append('categoryId', urlCategory); 
     } else if (category) {
-        params.append('category', category);
+    params.append('categoryId', category); 
     }
 
     if (search) params.append('search', search);
