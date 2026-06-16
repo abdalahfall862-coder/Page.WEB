@@ -1,4 +1,4 @@
-// cart.js — Gestion du panier (localStorage)
+// cart.js — Gestion du panier
 
 async function loadCart() {
     const container = document.getElementById('cart-items');
@@ -35,27 +35,31 @@ async function loadCart() {
 
         let subtotal = 0;
         container.innerHTML = items.map(item => {
-            const price     = item.product.price;
-            const itemTotal = price * item.quantity;
+            // Le backend retourne price/name/image directement dans item
+            const price     = item.price || 0;
+            const name      = item.name  || 'Produit';
+            const image     = item.image || 'https://via.placeholder.com/80';
+            const productId = item.productId;
+            const quantity  = item.quantity || 1;
+            const itemTotal = price * quantity;
             subtotal += itemTotal;
             return `
                 <div class="flex items-center gap-4 bg-white rounded-[16px] p-4 shadow-sm">
-                    <img src="${item.product.image || 'https://via.placeholder.com/80'}"
-                         class="w-20 h-20 object-cover rounded-[12px]" alt="${item.product.name}">
+                    <img src="${image}" class="w-20 h-20 object-cover rounded-[12px]" alt="${name}">
                     <div class="flex-1">
-                        <h3 class="font-semibold text-sm">${item.product.name}</h3>
+                        <h3 class="font-semibold text-sm">${name}</h3>
                         <p class="text-[#6B7A4F] font-bold">${price.toLocaleString()} FCFA</p>
                         <div class="flex items-center gap-2 mt-2">
-                            <button onclick="changeQuantity('${item.productId}', ${item.quantity - 1})"
+                            <button onclick="changeQuantity('${productId}', ${quantity - 1})"
                                 class="w-8 h-8 rounded-full bg-[#F4F3EF] hover:bg-[#EAE8E3] text-sm font-bold transition">−</button>
-                            <span class="text-sm font-medium w-6 text-center">${item.quantity}</span>
-                            <button onclick="changeQuantity('${item.productId}', ${item.quantity + 1})"
+                            <span class="text-sm font-medium w-6 text-center">${quantity}</span>
+                            <button onclick="changeQuantity('${productId}', ${quantity + 1})"
                                 class="w-8 h-8 rounded-full bg-[#F4F3EF] hover:bg-[#EAE8E3] text-sm font-bold transition">+</button>
                         </div>
                     </div>
                     <div class="text-right">
                         <p class="text-xs text-gray-400 mb-2">${itemTotal.toLocaleString()} FCFA</p>
-                        <button onclick="removeItem('${item.productId}')" class="text-red-400 hover:text-red-600 transition">
+                        <button onclick="removeItem('${productId}')" class="text-red-400 hover:text-red-600 transition">
                             <i class="fa-solid fa-trash text-sm"></i>
                         </button>
                     </div>
@@ -100,23 +104,26 @@ async function checkout() {
     const zipCode = document.getElementById('zipcode')?.value.trim() || '00000';
 
     if (!street || !city) {
-        alert('Veuillez remplir l\'adresse de livraison.');
+        alert("Veuillez remplir l'adresse de livraison.");
         return;
     }
 
-    const cart   = await getCartFull();
-    const orders = JSON.parse(localStorage.getItem('ms_orders') || '[]');
-    orders.push({
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
-        items: cart.items,
-        address: { street, city, zipCode, country: 'Sénégal' }
-    });
-    localStorage.setItem('ms_orders', JSON.stringify(orders));
-
-    await clearCart();
-    alert('✅ Commande passée avec succès !');
-    window.location.href = 'index.html';
+    try {
+        const cart   = await getCartFull();
+        const orders = JSON.parse(localStorage.getItem('ms_orders') || '[]');
+        orders.push({
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            items: cart.items,
+            address: { street, city, zipCode, country: 'Sénégal' }
+        });
+        localStorage.setItem('ms_orders', JSON.stringify(orders));
+        await clearCart();
+        alert('✅ Commande passée avec succès !');
+        window.location.href = 'index.html';
+    } catch (error) {
+        alert('Erreur : ' + error.message);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
