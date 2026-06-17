@@ -79,6 +79,9 @@ async function loadCategories() {
     const select = document.getElementById('category-filter');
     if (!select) return;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCategory = urlParams.get('category');
+
     try {
         const data = await getCategories();
         select.innerHTML = '<option value="">Toutes les catégories</option>';
@@ -90,7 +93,7 @@ async function loadCategories() {
         });
         
         if (urlCategory) select.value = urlCategory;  
-        
+
     } catch (error) {
         console.error('Erreur catégories:', error);
     }
