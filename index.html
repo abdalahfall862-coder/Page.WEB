@@ -16,88 +16,88 @@
 <body class="bg-[#FCFBFA] text-[#2C2B2A]">
 
     <nav class="bg-white border-b border-[#EAE8E3] sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-[#1A1A1A]"><i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-2"></i>MethShop</h1>
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="text-sm font-medium hover:text-[#6B7A4F]">Accueil</a>
-                <a href="products.html" class="text-sm font-medium hover:text-[#6B7A4F]">Produits</a>
+            <div class="flex items-center gap-2 md:gap-4">
+                <a href="index.html" class="hidden md:block text-sm font-medium hover:text-[#6B7A4F]">Accueil</a>
+                <a href="products.html" class="hidden md:block text-sm font-medium hover:text-[#6B7A4F]">Produits</a>
                 <a href="cart.html" class="text-sm font-medium hover:text-[#6B7A4F] relative">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-[#6B7A4F] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
                 </a>
                 <div id="auth-buttons">
-                    <a href="login.html" class="bg-[#6B7A4F] text-white px-4 py-2 rounded-full text-sm font-medium">Connexion</a>
+                    <a href="login.html" class="bg-[#6B7A4F] text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium">Connexion</a>
                 </div>
                 <div id="user-menu" class="hidden items-center gap-2">
-                    <span id="user-name" class="text-sm font-medium"></span>
+                    <span id="user-name" class="text-sm font-medium hidden md:block"></span>
                     <button onclick="logout()" class="text-red-500 text-sm"><i class="fa-solid fa-sign-out"></i></button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <header class="max-w-7xl mx-auto px-6 py-12 md:py-20 grid md:grid-cols-2 gap-12 items-center bg-[#F4F3EF] rounded-[32px] my-4 mx-4 md:mx-auto overflow-hidden relative">
-        <div class="space-y-6 max-w-lg pl-6 md:pl-12">
+    <header class="mx-4 md:mx-auto max-w-7xl px-4 md:px-6 py-8 md:py-20 grid md:grid-cols-2 gap-8 md:gap-12 items-center bg-[#F4F3EF] rounded-[24px] md:rounded-[32px] my-4 overflow-hidden relative">
+        <div class="space-y-4 md:space-y-6 max-w-lg px-2 md:pl-12">
             <span class="inline-block bg-white text-xs font-semibold px-3 py-1 rounded-full text-[#6B7A4F] shadow-xs">✨ MethShop</span>
-            <h1 class="text-4xl md:text-5xl font-bold text-[#1A1A1A] leading-tight">Dallal ak Diam</h1>
+            <h1 class="text-3xl md:text-5xl font-bold text-[#1A1A1A] leading-tight">Dallal ak Diam</h1>
             <p class="text-[#686663] text-sm md:text-base leading-relaxed">Explorez notre large gamme de produits de haute qualité à des prix abordables.</p>
-            <div class="flex gap-4 pt-2">
-                <a href="products.html" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-6 py-3 rounded-full font-medium shadow-md transition-all flex items-center gap-2">
+            <div class="flex gap-3 pt-2 flex-wrap">
+                <a href="products.html" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full font-medium shadow-md transition-all flex items-center gap-2 text-sm md:text-base">
                     Acheter Maintenant <i class="fa-solid fa-arrow-right text-xs"></i>
                 </a>
-                <a href="products.html" class="bg-white hover:bg-[#EAE8E3] border border-[#E3E1DC] text-[#2C2B2A] px-6 py-3 rounded-full font-medium transition-all">
+                <a href="products.html" class="bg-white hover:bg-[#EAE8E3] border border-[#E3E1DC] text-[#2C2B2A] px-5 py-2.5 md:px-6 md:py-3 rounded-full font-medium transition-all text-sm md:text-base">
                     Explorer les Offres
                 </a>
             </div>
         </div>
-        <div class="flex justify-center relative">
-            <div class="w-72 h-72 md:w-96 md:h-96 bg-white/50 absolute rounded-full blur-3xl -z-10"></div>
-            <img src="assets/img1.jpeg" alt="Featured Products" class="w-4/5 md:w-3/4 object-cover rounded-2xl shadow-xl">
+        <div class="flex justify-center relative order-first md:order-last">
+            <div class="w-48 h-48 md:w-96 md:h-96 bg-white/50 absolute rounded-full blur-3xl -z-10"></div>
+            <img src="assets/img1.jpeg" alt="Featured Products" class="w-3/4 md:w-3/4 object-cover rounded-2xl shadow-xl">
         </div>
     </header>
 
-    <section class="max-w-7xl mx-auto px-6 py-12 flex flex-row flex-nowrap overflow-x-auto gap-8 justify-between items-center no-scrollbar">
-        <div class="flex flex-row items-center gap-4 shrink-0">
-            <div class="shrink-0 w-12 h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-lg"><i class="fa-solid fa-truck"></i></div>
-            <div class="whitespace-nowrap"><h3 class="font-semibold text-sm text-[#1A1A1A]">Livraison Gratuite</h3><p class="text-xs text-[#8A8885]">Dès 5000 FCFA</p></div>
+    <section class="max-w-7xl mx-auto px-4 md:px-6 py-8 grid grid-cols-2 md:flex md:flex-row gap-4 md:gap-8 md:justify-between md:items-center">
+        <div class="flex flex-row items-center gap-3">
+            <div class="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-base md:text-lg"><i class="fa-solid fa-truck"></i></div>
+            <div><h3 class="font-semibold text-xs md:text-sm text-[#1A1A1A]">Livraison Gratuite</h3><p class="text-xs text-[#8A8885]">Dès 5000 FCFA</p></div>
         </div>
-        <div class="flex flex-row items-center gap-4 shrink-0">
-            <div class="shrink-0 w-12 h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-lg"><i class="fa-solid fa-credit-card"></i></div>
-            <div class="whitespace-nowrap"><h3 class="font-semibold text-sm text-[#1A1A1A]">Paiement Sécurisé</h3><p class="text-xs text-[#8A8885]">100% protégé</p></div>
+        <div class="flex flex-row items-center gap-3">
+            <div class="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-base md:text-lg"><i class="fa-solid fa-credit-card"></i></div>
+            <div><h3 class="font-semibold text-xs md:text-sm text-[#1A1A1A]">Paiement Sécurisé</h3><p class="text-xs text-[#8A8885]">100% protégé</p></div>
         </div>
-        <div class="flex flex-row items-center gap-4 shrink-0">
-            <div class="shrink-0 w-12 h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-lg"><i class="fa-solid fa-arrow-rotate-left"></i></div>
-            <div class="whitespace-nowrap"><h3 class="font-semibold text-sm text-[#1A1A1A]">Retours Faciles</h3><p class="text-xs text-[#8A8885]">Sous 7 jours</p></div>
+        <div class="flex flex-row items-center gap-3">
+            <div class="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-base md:text-lg"><i class="fa-solid fa-arrow-rotate-left"></i></div>
+            <div><h3 class="font-semibold text-xs md:text-sm text-[#1A1A1A]">Retours Faciles</h3><p class="text-xs text-[#8A8885]">Sous 7 jours</p></div>
         </div>
-        <div class="flex flex-row items-center gap-4 shrink-0">
-            <div class="shrink-0 w-12 h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-lg"><i class="fa-solid fa-headset"></i></div>
-            <div class="whitespace-nowrap"><h3 class="font-semibold text-sm text-[#1A1A1A]">Support 24/7</h3><p class="text-xs text-[#8A8885]">Ligne dédiée</p></div>
+        <div class="flex flex-row items-center gap-3">
+            <div class="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F4F3EF] flex items-center justify-center text-[#6B7A4F] text-base md:text-lg"><i class="fa-solid fa-headset"></i></div>
+            <div><h3 class="font-semibold text-xs md:text-sm text-[#1A1A1A]">Support 24/7</h3><p class="text-xs text-[#8A8885]">Ligne dédiée</p></div>
         </div>
     </section>
 
-    <section class="max-w-7xl mx-auto px-6 py-12">
+    <section class="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <div class="flex justify-between items-end mb-8">
             <h2 class="text-2xl font-bold text-[#1A1A1A]">Acheter par Catégorie</h2>
             <a href="products.html" class="text-sm font-semibold text-[#6B7A4F] hover:underline flex items-center gap-1">Toutes les Catégories <i class="fa-solid fa-chevron-right text-xs"></i></a>
         </div>
-        <div class="grid grid-cols-3 md:grid-cols-6 gap-6" id="categories-container"></div>
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6" id="categories-container"></div>
     </section>
 
-    <section class="max-w-7xl mx-auto px-6 py-12">
+    <section class="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <div class="flex justify-between items-end mb-8">
             <h2 class="text-2xl font-bold text-[#1A1A1A]">Meilleures Ventes</h2>
             <a href="products.html" class="text-sm font-semibold text-[#6B7A4F] hover:underline flex items-center gap-1">Voir Tout <i class="fa-solid fa-chevron-right text-xs"></i></a>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-6" id="products-container">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6" id="products-container">
             <div class="text-center py-12 col-span-full text-sm text-gray-400">Chargement des produits...</div>
         </div>
     </section>
 
-    <section class="max-w-7xl mx-auto px-6 py-6">
-        <div class="bg-[#F3EFEA] rounded-[32px] p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center relative overflow-hidden">
+    <section class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+        <div class="bg-[#F3EFEA] rounded-[24px] md:rounded-[32px] p-6 md:p-12 grid md:grid-cols-2 gap-6 md:gap-8 items-center relative overflow-hidden">
             <div class="space-y-4 md:pl-8">
                 <span class="text-xs font-bold text-[#6B7A4F]">OFFRE SPÉCIALE</span>
-                <h2 class="text-3xl font-bold text-[#1A1A1A]">Jusqu'à -50% de réduction</h2>
+                <h2 class="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Jusqu'à -50% de réduction</h2>
                 <p class="text-[#686663] text-sm leading-relaxed">Offre à durée limitée sur une sélection d'articles exclusifs.</p>
                 <a href="products.html" class="inline-block bg-[#6B7A4F] hover:bg-[#576440] text-white px-5 py-2.5 rounded-full font-medium transition shadow-sm text-sm">Profiter de l'offre <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></a>
             </div>
@@ -108,33 +108,40 @@
     </section>
 
     <!-- ── AVIS BOUTIQUE ─────────────────────────── -->
-    <section class="max-w-7xl mx-auto px-6 py-12">
-        <div class="flex justify-between items-end mb-8">
+    <section class="max-w-7xl mx-auto px-4 md:px-6 py-12">
+        <div class="flex justify-between items-center mb-8">
             <div>
-                <h2 class="text-2xl font-bold text-[#1A1A1A]">Avis Clients</h2>
-                <p class="text-sm text-[#686663] mt-1">Ce que nos clients pensent de MethShop</p>
+                <h2 class="text-xl md:text-2xl font-bold text-[#1A1A1A]">Avis Clients</h2>
+                <p class="text-xs md:text-sm text-[#686663] mt-1">Ce que nos clients pensent de MethShop</p>
             </div>
-            <button onclick="toggleReviewForm()" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-sm">
-                <i class="fa-solid fa-pen mr-1"></i> Laisser un avis
+            <button onclick="toggleReviewForm()" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-3 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition shadow-sm shrink-0">
+                <i class="fa-solid fa-pen mr-1"></i> <span class="hidden md:inline">Laisser un avis</span><span class="md:hidden">Avis</span>
             </button>
         </div>
 
-        <div id="reviews-summary" class="bg-[#F4F3EF] rounded-2xl p-6 mb-8 flex items-center gap-6 hidden">
-            <div class="text-center">
-                <div id="avg-rating" class="text-5xl font-bold text-[#1A1A1A]">0</div>
-                <div id="avg-stars" class="text-[#6B7A4F] text-xl mt-1"></div>
+        <div id="reviews-summary" class="bg-[#F4F3EF] rounded-2xl p-4 md:p-6 mb-8 flex items-center gap-4 md:gap-6 hidden">
+            <div class="text-center shrink-0">
+                <div id="avg-rating" class="text-4xl md:text-5xl font-bold text-[#1A1A1A]">0</div>
+                <div id="avg-stars" class="text-[#6B7A4F] text-lg md:text-xl mt-1"></div>
                 <div id="avg-total" class="text-xs text-[#8A8885] mt-1"></div>
             </div>
-            <div class="h-16 w-px bg-[#E3E1DC]"></div>
-            <p class="text-sm text-[#686663] italic">"Merci pour votre confiance !"</p>
+            <div class="h-12 md:h-16 w-px bg-[#E3E1DC]"></div>
+            <p class="text-xs md:text-sm text-[#686663] italic">"Merci pour votre confiance !"</p>
         </div>
 
-        <div id="review-form" class="hidden bg-white border border-[#E3E1DC] rounded-2xl p-6 mb-8">
+        <div id="review-form" class="hidden bg-white border border-[#E3E1DC] rounded-2xl p-4 md:p-6 mb-8">
             <h3 class="font-semibold text-[#1A1A1A] mb-4">Votre avis sur la boutique</h3>
             <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-semibold text-[#1A1A1A]">Votre nom</label>
-                    <input type="text" id="review-author" placeholder="Ex: Aminata D." class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                <!-- Nom + Titre côte à côte sur desktop -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Votre nom</label>
+                        <input type="text" id="review-author" placeholder="Ex: Aminata D." class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Titre <span class="text-[#8A8885] font-normal">(optionnel)</span></label>
+                        <input type="text" id="review-title" placeholder="Ex: Super boutique !" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                    </div>
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-[#1A1A1A]">Note</label>
@@ -148,34 +155,29 @@
                     <input type="hidden" id="review-rating" value="0">
                 </div>
                 <div>
-                    <label class="text-xs font-semibold text-[#1A1A1A]">Titre <span class="text-[#8A8885] font-normal">(optionnel)</span></label>
-                    <input type="text" id="review-title" placeholder="Ex: Super boutique !" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
-                </div>
-                <div>
                     <label class="text-xs font-semibold text-[#1A1A1A]">Commentaire <span class="text-[#8A8885] font-normal">(optionnel)</span></label>
                     <textarea id="review-comment" rows="3" placeholder="Partagez votre expérience..." class="w-full border border-[#E3E1DC] rounded-2xl px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F] resize-none"></textarea>
                 </div>
                 <div id="review-form-msg" class="text-sm text-center hidden"></div>
                 <div class="flex gap-3">
-                    <button onclick="submitShopReview()" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-6 py-2.5 rounded-full text-sm font-medium transition">
+                    <button onclick="submitShopReview()" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-5 md:px-6 py-2.5 rounded-full text-sm font-medium transition">
                         Envoyer <i class="fa-solid fa-paper-plane ml-1"></i>
                     </button>
-                    <button onclick="toggleReviewForm()" class="border border-[#E3E1DC] px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#F4F3EF] transition">
+                    <button onclick="toggleReviewForm()" class="border border-[#E3E1DC] px-5 md:px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#F4F3EF] transition">
                         Annuler
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Liste des avis -->
         <div id="reviews-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="text-center py-12 col-span-full text-sm text-[#8A8885]">Chargement des avis...</div>
         </div>
-    </section> 
+    </section>
 
-    <footer class="bg-white border-t border-[#EAE8E3] mt-20 py-12">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
-            <div class="space-y-4">
+    <footer class="bg-white border-t border-[#EAE8E3] mt-12 md:mt-20 py-10 md:py-12">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-sm">
+            <div class="col-span-2 md:col-span-1 space-y-4">
                 <h3 class="font-bold text-base text-[#1A1A1A]"><i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-1"></i> MethShop</h3>
                 <p class="text-xs text-[#686663] leading-relaxed">Votre boutique de référence pour des produits premium au meilleur prix.</p>
             </div>
@@ -193,11 +195,11 @@
                     <li><a href="#" class="hover:text-[#6B7A4F]">Retours & Remboursements</a></li>
                 </ul>
             </div>
-            <div>
+            <div class="col-span-2 md:col-span-1">
                 <h4 class="font-bold mb-4 text-[#1A1A1A]">Newsletter</h4>
                 <div class="flex gap-2">
                     <input type="email" placeholder="Votre email" class="border border-[#E3E1DC] bg-[#FCFBFA] rounded-full px-4 py-2 text-xs w-full focus:outline-[#6B7A4F]">
-                    <button class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-4 py-2 rounded-full text-xs font-semibold">S'abonner</button>
+                    <button class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-4 py-2 rounded-full text-xs font-semibold shrink-0">S'abonner</button>
                 </div>
             </div>
         </div>
@@ -206,6 +208,6 @@
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/home.js"></script>
-    <script src="js/reviews.js"></script>  <!-- ← manquait -->
+    <script src="js/reviews.js"></script>
 </body>
 </html>
