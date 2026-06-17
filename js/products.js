@@ -88,6 +88,9 @@ async function loadCategories() {
             option.textContent = cat.name;
             select.appendChild(option);
         });
+        
+        if (urlCategory) select.value = urlCategory;  
+        
     } catch (error) {
         console.error('Erreur catégories:', error);
     }
