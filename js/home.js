@@ -23,6 +23,29 @@ async function loadFeaturedProducts() {
     if (!container) return;
     try {
         const data = await getProducts('limit=5');
+        const products = data.products || [];
+        container.innerHTML = products.map(product => `
+            <div class="bg-white rounded-[24px] p-4 shadow-sm hover:shadow-md transition group">
+                <div class="relative overflow-hidden rounded-[16px] mb-3">
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <h3 class="font-semibold text-sm text-[#1A1A1A]">${product.name}</h3>
+                <p class="text-[#6B7A4F] font-bold mt-1">${Number(product.price).toLocaleString()} FCFA</p>
+                <button onclick="addToCartNow('${product.id}')" class="w-full mt-2 bg-[#F4F3EF] hover:bg-[#6B7A4F] hover:text-white text-[#2C2B2A] py-2 rounded-full text-xs font-medium transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Ajouter
+                </button>
+            </div>
+        `).join('');
+    } catch (error) {
+        container.innerHTML = '<p class="text-center text-gray-400 col-span-full">Erreur chargement produits</p>';
+        console.error('Erreur produits:', error);
+    }
+    return;
+
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    try {
+        const data = await getProducts('limit=5');
         container.innerHTML = data.products.map(product => `
             <div class="bg-white rounded-[24px] p-4 shadow-sm hover:shadow-md transition group">
                 <div class="relative overflow-hidden rounded-[16px] mb-3">

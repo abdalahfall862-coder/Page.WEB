@@ -31,7 +31,13 @@ async function registerUser({ name, email, password }) {
         headers: authHeaders(),
         body: JSON.stringify({ name, email, password })
     });
-    if (!res.ok) throw new Error((await res.json()).error || 'Erreur inscription');
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const msg = (err.message || err.error || '').toLowerCase();
+        if (msg.includes('password')) throw new Error("Mot de passe incorrect.");
+        if (msg.includes('email') && (msg.includes('utilis') || msg.includes('déjà') || msg.includes('already'))) throw new Error("Email déjà utilisé. Utilisez un autre email.");
+        throw new Error(err.message || err.error || 'Inscription refusée.');
+    }
     return res.json();
 }
 
@@ -41,7 +47,16 @@ async function loginUser({ email, password }) {
         headers: authHeaders(),
         body: JSON.stringify({ email, password })
     });
-    if (!res.ok) throw new Error((await res.json()).error || 'Erreur connexion');
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const messages = {
+            401: "Email ou mot de passe incorrect.",
+            404: "Aucun compte trouvé avec cet email.",
+            429: "Trop de tentatives, réessayez plus tard.",
+            500: "Erreur serveur, réessayez dans quelques instants."
+        };
+        throw new Error(messages[res.status] || err.error || "Erreur de connexion.");
+    }
     const data = await res.json();
     localStorage.setItem('token', data.token);
     return data;
@@ -128,4 +143,30 @@ async function updateCartCount() {
     } catch (e) {
         console.error('Erreur badge:', e);
     }
+}
+
+// ── Reviews ───────────────────────────────────
+async function addReview({ productId, authorName, rating, title, comment, type }) {
+    const res = await apiFetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ productId, authorName, rating, title, comment, type })
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Erreur lors de l\'envoi de l\'avis.');
+    }
+    return res.json();
+}
+
+async function getProductReviews(productId) {
+    const res = await apiFetch(`${API_BASE_URL}/reviews/product/${productId}`);
+    if (!res.ok) throw new Error('Erreur chargement avis');
+    return res.json();
+}
+
+async function getShopReviews() {
+    const res = await apiFetch(`${API_BASE_URL}/reviews/shop`);
+    if (!res.ok) throw new Error('Erreur chargement avis boutique');
+    return res.json();
 }

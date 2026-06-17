@@ -107,6 +107,72 @@
         </div>
     </section>
 
+    <!-- ── AVIS BOUTIQUE ─────────────────────────── -->
+    <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-[#1A1A1A]">Avis Clients</h2>
+                <p class="text-sm text-[#686663] mt-1">Ce que nos clients pensent de MethShop</p>
+            </div>
+            <button onclick="toggleReviewForm()" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-sm">
+                <i class="fa-solid fa-pen mr-1"></i> Laisser un avis
+            </button>
+        </div>
+
+        <div id="reviews-summary" class="bg-[#F4F3EF] rounded-2xl p-6 mb-8 flex items-center gap-6 hidden">
+            <div class="text-center">
+                <div id="avg-rating" class="text-5xl font-bold text-[#1A1A1A]">0</div>
+                <div id="avg-stars" class="text-[#6B7A4F] text-xl mt-1"></div>
+                <div id="avg-total" class="text-xs text-[#8A8885] mt-1"></div>
+            </div>
+            <div class="h-16 w-px bg-[#E3E1DC]"></div>
+            <p class="text-sm text-[#686663] italic">"Merci pour votre confiance !"</p>
+        </div>
+
+        <div id="review-form" class="hidden bg-white border border-[#E3E1DC] rounded-2xl p-6 mb-8">
+            <h3 class="font-semibold text-[#1A1A1A] mb-4">Votre avis sur la boutique</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Votre nom</label>
+                    <input type="text" id="review-author" placeholder="Ex: Aminata D." class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Note</label>
+                    <div class="flex gap-2 mt-2" id="star-selector">
+                        <i class="fa-solid fa-star text-2xl cursor-pointer text-[#D1CFC9] hover:text-[#F5A623] transition" data-value="1"></i>
+                        <i class="fa-solid fa-star text-2xl cursor-pointer text-[#D1CFC9] hover:text-[#F5A623] transition" data-value="2"></i>
+                        <i class="fa-solid fa-star text-2xl cursor-pointer text-[#D1CFC9] hover:text-[#F5A623] transition" data-value="3"></i>
+                        <i class="fa-solid fa-star text-2xl cursor-pointer text-[#D1CFC9] hover:text-[#F5A623] transition" data-value="4"></i>
+                        <i class="fa-solid fa-star text-2xl cursor-pointer text-[#D1CFC9] hover:text-[#F5A623] transition" data-value="5"></i>
+                    </div>
+                    <input type="hidden" id="review-rating" value="0">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Titre <span class="text-[#8A8885] font-normal">(optionnel)</span></label>
+                    <input type="text" id="review-title" placeholder="Ex: Super boutique !" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Commentaire <span class="text-[#8A8885] font-normal">(optionnel)</span></label>
+                    <textarea id="review-comment" rows="3" placeholder="Partagez votre expérience..." class="w-full border border-[#E3E1DC] rounded-2xl px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F] resize-none"></textarea>
+                </div>
+                <div id="review-form-msg" class="text-sm text-center hidden"></div>
+                <div class="flex gap-3">
+                    <button onclick="submitShopReview()" class="bg-[#6B7A4F] hover:bg-[#576440] text-white px-6 py-2.5 rounded-full text-sm font-medium transition">
+                        Envoyer <i class="fa-solid fa-paper-plane ml-1"></i>
+                    </button>
+                    <button onclick="toggleReviewForm()" class="border border-[#E3E1DC] px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#F4F3EF] transition">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des avis -->
+        <div id="reviews-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center py-12 col-span-full text-sm text-[#8A8885]">Chargement des avis...</div>
+        </div>
+    </section> 
+
     <footer class="bg-white border-t border-[#EAE8E3] mt-20 py-12">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
             <div class="space-y-4">
@@ -140,5 +206,6 @@
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/home.js"></script>
+    <script src="js/reviews.js"></script>  <!-- ← manquait -->
 </body>
 </html>

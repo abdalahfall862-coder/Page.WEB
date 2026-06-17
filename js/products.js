@@ -2,6 +2,8 @@
 
 async function loadProducts() {
     const container = document.getElementById('products-container');
+    if (!container) return;
+
     const params = new URLSearchParams();
 
     const category = document.getElementById('category-filter')?.value;
@@ -13,14 +15,17 @@ async function loadProducts() {
     const urlCategory = urlParams.get('category');
 
     if (urlCategory && !category) {
-    const select = document.getElementById('category-filter');
-    if (select) select.value = urlCategory;
-    params.append('categoryId', urlCategory); 
+        const select = document.getElementById('category-filter');
+        if (select) select.value = urlCategory;
+        params.append('category', urlCategory);
     } else if (category) {
-    params.append('categoryId', category); 
+        params.append('category', category);
     }
 
     if (search) params.append('search', search);
+    if (minPrice) params.append('minPrice', minPrice);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+
     params.append('limit', 12);
 
     container.innerHTML = `
@@ -30,11 +35,8 @@ async function loadProducts() {
         </div>`;
 
     try {
-        const data   = await getProducts(params.toString());
-        let products = data.products || [];
-
-        if (minPrice) products = products.filter(p => p.price >= Number(minPrice));
-        if (maxPrice) products = products.filter(p => p.price <= Number(maxPrice));
+        const data = await getProducts(params.toString());
+        const products = data.products || [];
 
         if (products.length === 0) {
             container.innerHTML = `
@@ -59,7 +61,6 @@ async function loadProducts() {
                 </button>
             </div>
         `).join('');
-
     } catch (error) {
         container.innerHTML = `
             <p class="text-center text-gray-400 col-span-full py-8">
@@ -70,20 +71,26 @@ async function loadProducts() {
     }
 }
 
-function filterProducts() { loadProducts(); }
+function filterProducts() {
+    loadProducts();
+}
 
 async function loadCategories() {
     const select = document.getElementById('category-filter');
     if (!select) return;
+
     try {
         const data = await getCategories();
+        select.innerHTML = '<option value="">Toutes les catégories</option>';
         data.forEach(cat => {
             const option = document.createElement('option');
             option.value = cat.id;
             option.textContent = cat.name;
             select.appendChild(option);
         });
-    } catch (error) { console.error('Erreur catégories:', error); }
+    } catch (error) {
+        console.error('Erreur catégories:', error);
+    }
 }
 
 async function addToCartNow(productId) {
@@ -94,21 +101,30 @@ async function addToCartNow(productId) {
         }
         return;
     }
+
     try {
         await addToCart({ productId, quantity: 1 });
         updateCartCount();
         showToast('✅ Ajouté au panier !');
-    } catch (error) { alert(error.message); }
+    } catch (error) {
+        alert(error.message);
+    }
 }
 
 function showToast(msg) {
     const existing = document.querySelector('.ms-toast');
     if (existing) existing.remove();
+
     const toast = document.createElement('div');
     toast.className = 'ms-toast fixed bottom-6 right-6 bg-[#1A1A1A] text-white px-5 py-3 rounded-full shadow-lg text-sm font-medium z-50';
     toast.textContent = msg;
     document.body.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 2000);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -116,3 +132,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
     updateCartCount();
 });
+
