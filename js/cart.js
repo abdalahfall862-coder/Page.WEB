@@ -35,7 +35,6 @@ async function loadCart() {
 
         let subtotal = 0;
         container.innerHTML = items.map(item => {
-            // Le backend retourne price/name/image directement dans item
             const price     = item.price || 0;
             const name      = item.name  || 'Produit';
             const image     = item.image || 'https://via.placeholder.com/80';
@@ -102,28 +101,74 @@ async function checkout() {
     const street  = document.getElementById('street')?.value.trim();
     const city    = document.getElementById('city')?.value.trim();
     const zipCode = document.getElementById('zipcode')?.value.trim() || '00000';
+    const phone   = document.getElementById('phone')?.value.trim();
+    const msgEl   = document.getElementById('checkout-msg');
 
+    // Validations
     if (!street || !city) {
-        alert("Veuillez remplir l'adresse de livraison.");
+        showCheckoutMsg("Veuillez remplir l'adresse de livraison.", 'red');
+        return;
+    }
+    if (!phone) {
+        showCheckoutMsg("Veuillez entrer votre numéro de téléphone.", 'red');
         return;
     }
 
+    const btn = document.querySelector('button[onclick="checkout()"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours...'; }
+
     try {
-        const cart   = await getCartFull();
-        const orders = JSON.parse(localStorage.getItem('ms_orders') || '[]');
-        orders.push({
-            id: Date.now().toString(),
-            date: new Date().toISOString(),
-            items: cart.items,
-            address: { street, city, zipCode, country: 'Sénégal' }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const res = await fetch('https://mon-api-vnhx.onrender.com/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                shippingAddress: {
+                    street,
+                    city,
+                    zipCode,
+                    country: 'Sénégal'
+                },
+                phone,
+                paymentMethod: 'cash',
+                deliveryType: city.toLowerCase() === 'dakar' ? 'yango' : 'standard'
+            })
         });
-        localStorage.setItem('ms_orders', JSON.stringify(orders));
-        await clearCart();
-        alert('✅ Commande passée avec succès !');
-        window.location.href = 'index.html';
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            showCheckoutMsg(data.error || data.message || 'Erreur lors de la commande.', 'red');
+            if (btn) { btn.disabled = false; btn.innerHTML = 'Passer la commande <i class="fa-solid fa-arrow-right ml-2"></i>'; }
+            return;
+        }
+
+        // Succès
+        showCheckoutMsg('✅ Commande passée avec succès !', 'green');
+        updateCartCount();
+        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+
     } catch (error) {
-        alert('Erreur : ' + error.message);
+        showCheckoutMsg('Erreur de connexion. Réessayez.', 'red');
+        if (btn) { btn.disabled = false; btn.innerHTML = 'Passer la commande <i class="fa-solid fa-arrow-right ml-2"></i>'; }
+        console.error('Checkout:', error);
     }
+}
+
+function showCheckoutMsg(text, color) {
+    const el = document.getElementById('checkout-msg');
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color;
+    el.classList.remove('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
