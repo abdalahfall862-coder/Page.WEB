@@ -31,6 +31,16 @@ function updateSidebar() {
         sidebarLogout.classList.remove('hidden');
         sidebarName.textContent = user.name;
         sidebarAvatar.textContent = user.name.charAt(0).toUpperCase();
+
+        // Lien admin si role === 'admin'
+        const adminLink = document.getElementById('sidebar-admin-link');
+        if (adminLink) {
+            if (user.role === 'admin') {
+                adminLink.classList.remove('hidden');
+            } else {
+                adminLink.classList.add('hidden');
+            }
+        }
     } else {
         sidebarUser.classList.add('hidden');
         sidebarLogin.classList.remove('hidden');
