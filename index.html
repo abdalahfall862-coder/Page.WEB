@@ -16,38 +16,34 @@
 <body class="bg-[#FCFBFA] text-[#2C2B2A]">
 
     <nav class="bg-white border-b border-[#EAE8E3] sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-[#1A1A1A]">
-                <i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-2"></i>MethShop
-            </h1>
-            <div class="flex items-center gap-3">
-
-                <a href="index.html" class="hidden md:block text-sm font-medium hover:text-[#6B7A4F]">Accueil</a>
-                <a href="products.html" class="hidden md:block text-sm font-medium hover:text-[#6B7A4F]">Produits</a>
-
-                <a href="cart.html" class="text-sm font-medium hover:text-[#6B7A4F] relative">
-                    <i class="fa-solid fa-cart-shopping text-xl"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-[#6B7A4F] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
-                </a>
-
-                <a id="sidebar-admin-link" href="admin.html" onclick="toggleSidebar()" class="hidden flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F4F3EF] text-sm font-medium text-[#6B7A4F] transition">
-                    <i class="fa-solid fa-shield-halved text-[#6B7A4F] w-5"></i> Dashboard Admin
-                </a>
-
-                <div id="auth-buttons" class="hidden md:block">
-                    <a href="login.html" class="bg-[#6B7A4F] text-white px-4 py-2 rounded-full text-sm font-medium">Connexion</a>
-                </div>
-                <div id="user-menu" class="hidden md:flex items-center gap-2">
-                    <span id="user-name" class="text-sm font-medium"></span>
-                    <button onclick="logout()" class="text-red-500 text-sm"><i class="fa-solid fa-sign-out"></i></button>
-                </div>
-
-                <button onclick="toggleSidebar()" class="text-[#1A1A1A] text-xl p-1 ml-1">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-[#1A1A1A]">
+            <i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-2"></i>MethShop
+        </h1>
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="hidden md:block text-sm font-medium hover:text-[#6B7A4F]">Accueil</a>
+            <a href="products.html" class="hidden md:block text-sm font-medium hover:text-[#6B7A4F]">Produits</a>
+            <a href="cart.html" class="text-sm font-medium hover:text-[#6B7A4F] relative">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-[#6B7A4F] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+            </a>
+            <!-- Lien admin discret - juste une icône gris clair -->
+            <a id="nav-admin-link" href="admin.html" class="hidden text-[#D1CFC9] text-sm p-1">
+                <i class="fa-solid fa-shield-halved"></i>
+            </a>
+            <div id="auth-buttons" class="hidden md:block">
+                <a href="login.html" class="bg-[#6B7A4F] text-white px-4 py-2 rounded-full text-sm font-medium">Connexion</a>
             </div>
+            <div id="user-menu" class="hidden md:flex items-center gap-2">
+                <span id="user-name" class="text-sm font-medium"></span>
+                <button onclick="logout()" class="text-red-500 text-sm"><i class="fa-solid fa-sign-out"></i></button>
+            </div>
+            <button onclick="toggleSidebar()" class="text-[#1A1A1A] text-xl p-1 ml-1">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Overlay -->
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 z-40 hidden"></div>
