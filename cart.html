@@ -10,31 +10,91 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
-    <script src="js/sidebar.js"></script>
 </head>
 <body class="bg-[#FCFBFA] text-[#2C2B2A]">
 
     <nav class="bg-white border-b border-[#EAE8E3] sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="index.html" class="text-xl font-bold text-[#1A1A1A]"><i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-2"></i>MethShop</a>
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="text-sm font-medium hover:text-[#6B7A4F]">Accueil</a>
-                <a href="products.html" class="text-sm font-medium hover:text-[#6B7A4F]">Produits</a>
-                <a href="cart.html" class="text-sm font-medium text-[#6B7A4F]">Panier</a>
-                <a id="sidebar-admin-link" href="admin.html" onclick="toggleSidebar()" class="hidden flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F4F3EF] text-sm font-medium text-[#6B7A4F] transition">
-                     <i class="fa-solid fa-shield-halved text-[#6B7A4F] w-5"></i> Dashboard Admin
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-[#1A1A1A]">
+                <i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-2"></i>MethShop
+            </a>
+            <div class="flex items-center gap-3">
+                <a href="cart.html" class="text-sm font-medium text-[#6B7A4F] relative">
+                    <i class="fa-solid fa-cart-shopping text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-[#6B7A4F] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
                 </a>
-                <div id="user-menu" class="hidden items-center gap-2">
+                <a id="nav-admin-link" href="admin.html" class="hidden text-[#D1CFC9] text-sm p-1">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </a>
+                <div id="auth-buttons" class="hidden md:block">
+                    <a href="login.html" class="bg-[#6B7A4F] text-white px-4 py-2 rounded-full text-sm font-medium">Connexion</a>
+                </div>
+                <div id="user-menu" class="hidden md:flex items-center gap-2">
                     <span id="user-name" class="text-sm font-medium"></span>
                     <button onclick="logout()" class="text-red-500 text-sm"><i class="fa-solid fa-sign-out"></i></button>
                 </div>
+                <button onclick="toggleSidebar()" class="text-[#1A1A1A] text-xl p-1 ml-1">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <section class="max-w-4xl mx-auto px-6 py-12">
+    <!-- Overlay -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 z-40 hidden"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="flex flex-col h-full">
+            <div class="flex justify-between items-center px-6 py-5 border-b border-[#EAE8E3]">
+                <span class="text-lg font-bold text-[#1A1A1A]">
+                    <i class="fa-solid fa-bag-shopping text-[#6B7A4F] mr-2"></i>MethShop
+                </span>
+                <button onclick="toggleSidebar()" class="text-[#686663] text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="sidebar-user" class="hidden px-6 py-4 bg-[#F4F3EF] mx-4 mt-4 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#6B7A4F] flex items-center justify-center text-white font-bold text-sm" id="sidebar-avatar">?</div>
+                    <div>
+                        <p class="text-sm font-semibold text-[#1A1A1A]" id="sidebar-username"></p>
+                        <p class="text-xs text-[#686663]">Connecté</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex flex-col px-4 mt-6 gap-1 flex-1">
+                <a href="index.html" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F4F3EF] text-sm font-medium text-[#1A1A1A] transition">
+                    <i class="fa-solid fa-house text-[#6B7A4F] w-5"></i> Accueil
+                </a>
+                <a href="products.html" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F4F3EF] text-sm font-medium text-[#1A1A1A] transition">
+                    <i class="fa-solid fa-shirt text-[#6B7A4F] w-5"></i> Produits
+                </a>
+                <a href="cart.html" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F4F3EF] text-sm font-medium text-[#1A1A1A] transition">
+                    <i class="fa-solid fa-cart-shopping text-[#6B7A4F] w-5"></i> Panier
+                </a>
+                <a id="sidebar-admin-link" href="admin.html" onclick="toggleSidebar()" class="hidden flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F4F3EF] text-sm font-medium text-[#6B7A4F] transition">
+                    <i class="fa-solid fa-shield-halved text-[#6B7A4F] w-5"></i> Dashboard Admin
+                </a>
+            </nav>
+            <div class="px-4 pb-8">
+                <div id="sidebar-login-btn">
+                    <a href="login.html" class="flex items-center justify-center gap-2 w-full bg-[#6B7A4F] hover:bg-[#576440] text-white py-3 rounded-full text-sm font-medium transition">
+                        <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+                    </a>
+                </div>
+                <div id="sidebar-logout-btn" class="hidden">
+                    <button onclick="logout()" class="flex items-center justify-center gap-2 w-full border border-red-200 text-red-500 hover:bg-red-50 py-3 rounded-full text-sm font-medium transition">
+                        <i class="fa-solid fa-sign-out"></i> Déconnexion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
         <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6">Mon Panier</h2>
-        
+
         <div id="cart-items" class="space-y-4">
             <div class="text-center py-12 text-gray-400">
                 <i class="fa-solid fa-cart-arrow-down text-4xl mb-2"></i>
@@ -43,17 +103,34 @@
             </div>
         </div>
 
-        <div id="cart-summary" class="hidden mt-8 bg-white rounded-[24px] p-6 shadow-sm space-y-5">
+        <div id="cart-summary" class="hidden mt-8 bg-white rounded-[24px] p-5 md:p-6 shadow-sm space-y-5">
+
             <!-- Adresse de livraison -->
-            <h3 class="font-bold text-base text-[#1A1A1A]">Adresse de livraison</h3>
+            <h3 class="font-bold text-base text-[#1A1A1A]">
+                <i class="fa-solid fa-location-dot text-[#6B7A4F] mr-2"></i>Adresse de livraison
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input id="street" type="text" placeholder="Rue / Quartier" 
-                    class="border border-[#E3E1DC] rounded-full px-4 py-2 text-sm focus:outline-[#6B7A4F] col-span-full">
-                <input id="city" type="text" placeholder="Ville (ex: Dakar)" 
-                    class="border border-[#E3E1DC] rounded-full px-4 py-2 text-sm focus:outline-[#6B7A4F]">
-                <input id="zipcode" type="text" placeholder="Code postal (optionnel)" 
-                    class="border border-[#E3E1DC] rounded-full px-4 py-2 text-sm focus:outline-[#6B7A4F]">
+                <input id="street" type="text" placeholder="Rue / Quartier"
+                    class="border border-[#E3E1DC] rounded-full px-4 py-2.5 text-sm focus:outline-[#6B7A4F] col-span-full">
+                <input id="city" type="text" placeholder="Ville (ex: Dakar)"
+                    class="border border-[#E3E1DC] rounded-full px-4 py-2.5 text-sm focus:outline-[#6B7A4F]">
+                <input id="zipcode" type="text" placeholder="Code postal (optionnel)"
+                    class="border border-[#E3E1DC] rounded-full px-4 py-2.5 text-sm focus:outline-[#6B7A4F]">
             </div>
+
+            <!-- Numéro de téléphone -->
+            <h3 class="font-bold text-base text-[#1A1A1A]">
+                <i class="fa-solid fa-phone text-[#6B7A4F] mr-2"></i>Numéro de téléphone
+            </h3>
+            <div class="flex gap-2">
+                <div class="flex items-center gap-2 border border-[#E3E1DC] rounded-full px-4 py-2.5 bg-[#F4F3EF] shrink-0">
+                    <span class="text-sm font-medium text-[#686663]">🇸🇳 +221</span>
+                </div>
+                <input id="phone" type="tel" placeholder="77 000 00 00"
+                    class="flex-1 border border-[#E3E1DC] rounded-full px-4 py-2.5 text-sm focus:outline-[#6B7A4F]">
+            </div>
+            <p class="text-xs text-[#8A8885] -mt-2">Pour vous contacter lors de la livraison</p>
+
             <!-- Résumé prix -->
             <div class="border-t border-[#EAE8E3] pt-4 space-y-2 text-sm">
                 <div class="flex justify-between text-[#686663]">
@@ -69,6 +146,9 @@
                     <span id="cart-total" class="text-[#6B7A4F] text-xl">0 FCFA</span>
                 </div>
             </div>
+
+            <div id="checkout-msg" class="text-sm text-center hidden"></div>
+
             <button onclick="checkout()" class="w-full bg-[#6B7A4F] hover:bg-[#576440] text-white py-3 rounded-full font-medium transition shadow-md">
                 Passer la commande <i class="fa-solid fa-arrow-right ml-2"></i>
             </button>
@@ -78,5 +158,6 @@
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/cart.js"></script>
+    <script src="js/sidebar.js"></script>
 </body>
 </html>
