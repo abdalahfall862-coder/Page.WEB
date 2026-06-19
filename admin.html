@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MethShop - Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#FCFBFA] text-[#2C2B2A]">
+
+    <!-- Login admin -->
+    <div id="admin-login" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-[32px] shadow-xl w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-[#6B7A4F] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-lock text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-[#1A1A1A]">Admin MethShop</h1>
+                <p class="text-sm text-[#686663] mt-1">Accès réservé aux administrateurs</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Email</label>
+                    <input type="email" id="admin-email" class="w-full border border-[#E3E1DC] rounded-full px-4 py-3 mt-1 text-sm focus:outline-[#6B7A4F]" placeholder="admin@methshop.com">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Mot de passe</label>
+                    <input type="password" id="admin-password" class="w-full border border-[#E3E1DC] rounded-full px-4 py-3 mt-1 text-sm focus:outline-[#6B7A4F]" placeholder="••••••••">
+                </div>
+                <button onclick="adminLogin()" class="w-full bg-[#6B7A4F] hover:bg-[#576440] text-white py-3 rounded-full font-medium transition">
+                    Accéder au dashboard
+                </button>
+                <div id="admin-login-msg" class="text-center text-sm text-red-500 hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="admin-dashboard" class="hidden min-h-screen">
+
+        <!-- Topbar -->
+        <nav class="bg-white border-b border-[#EAE8E3] sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#6B7A4F] rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-bag-shopping text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-[#1A1A1A]">MethShop <span class="text-[#6B7A4F]">Admin</span></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="index.html" class="text-sm text-[#686663] hover:text-[#6B7A4F]">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Boutique
+                    </a>
+                    <button onclick="adminLogout()" class="text-sm text-red-500 hover:text-red-600">
+                        <i class="fa-solid fa-sign-out mr-1"></i> Déconnexion
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 py-8">
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-2xl p-5 border border-[#E3E1DC]">
+                    <p class="text-xs text-[#686663]">Utilisateurs</p>
+                    <p class="text-3xl font-bold text-[#1A1A1A] mt-1" id="stat-users">—</p>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border border-[#E3E1DC]">
+                    <p class="text-xs text-[#686663]">Produits</p>
+                    <p class="text-3xl font-bold text-[#1A1A1A] mt-1" id="stat-products">—</p>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border border-[#E3E1DC]">
+                    <p class="text-xs text-[#686663]">Commandes</p>
+                    <p class="text-3xl font-bold text-[#1A1A1A] mt-1" id="stat-orders">—</p>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border border-[#E3E1DC]">
+                    <p class="text-xs text-[#686663]">Revenus</p>
+                    <p class="text-2xl font-bold text-[#6B7A4F] mt-1" id="stat-revenue">—</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
+                <button onclick="showTab('products')" id="tab-products" class="tab-btn active-tab px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap">Produits</button>
+                <button onclick="showTab('categories')" id="tab-categories" class="tab-btn px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap">Catégories</button>
+                <button onclick="showTab('orders')" id="tab-orders" class="tab-btn px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap">Commandes</button>
+                <button onclick="showTab('users')" id="tab-users" class="tab-btn px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap">Utilisateurs</button>
+            </div>
+
+            <!-- ── PRODUITS ── -->
+            <div id="panel-products">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-[#1A1A1A]">Produits</h2>
+                    <button onclick="openProductModal()" class="bg-[#6B7A4F] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-[#576440] transition">
+                        <i class="fa-solid fa-plus mr-1"></i> Ajouter
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-[#E3E1DC] overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-[#F4F3EF]">
+                                <tr>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Produit</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Prix</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Stock</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Catégorie</th>
+                                    <th class="px-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── CATÉGORIES ── -->
+            <div id="panel-categories" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-[#1A1A1A]">Catégories</h2>
+                    <button onclick="openCategoryModal()" class="bg-[#6B7A4F] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-[#576440] transition">
+                        <i class="fa-solid fa-plus mr-1"></i> Ajouter
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl border border-[#E3E1DC] overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-[#F4F3EF]">
+                            <tr>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Nom</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Image</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── COMMANDES ── -->
+            <div id="panel-orders" class="hidden">
+                <h2 class="text-lg font-bold text-[#1A1A1A] mb-4">Commandes</h2>
+                <div class="bg-white rounded-2xl border border-[#E3E1DC] overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-[#F4F3EF]">
+                                <tr>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">ID</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Client</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Total</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Statut</th>
+                                    <th class="px-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── UTILISATEURS ── -->
+            <div id="panel-users" class="hidden">
+                <h2 class="text-lg font-bold text-[#1A1A1A] mb-4">Utilisateurs</h2>
+                <div class="bg-white rounded-2xl border border-[#E3E1DC] overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-[#F4F3EF]">
+                            <tr>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Nom</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Email</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-[#686663]">Rôle</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Produit -->
+    <div id="product-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-[#1A1A1A]" id="product-modal-title">Ajouter un produit</h3>
+                <button onclick="closeProductModal()" class="text-[#686663] text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Nom du produit</label>
+                        <input type="text" id="p-name" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Prix (FCFA)</label>
+                        <input type="number" id="p-price" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Stock</label>
+                        <input type="number" id="p-stock" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Catégorie</label>
+                        <select id="p-category" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F] bg-white">
+                            <option value="">Choisir une catégorie</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-xs font-semibold text-[#1A1A1A]">URL Image</label>
+                        <input type="text" id="p-image" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]" placeholder="https://...">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-xs font-semibold text-[#1A1A1A]">Description</label>
+                        <textarea id="p-description" rows="3" class="w-full border border-[#E3E1DC] rounded-2xl px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F] resize-none"></textarea>
+                    </div>
+                </div>
+                <div id="product-modal-msg" class="text-sm text-center hidden"></div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="saveProduct()" class="flex-1 bg-[#6B7A4F] hover:bg-[#576440] text-white py-3 rounded-full text-sm font-medium transition">
+                        Enregistrer
+                    </button>
+                    <button onclick="closeProductModal()" class="flex-1 border border-[#E3E1DC] py-3 rounded-full text-sm font-medium hover:bg-[#F4F3EF] transition">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Catégorie -->
+    <div id="category-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-[#1A1A1A]">Ajouter une catégorie</h3>
+                <button onclick="closeCategoryModal()" class="text-[#686663] text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">Nom</label>
+                    <input type="text" id="c-name" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-[#1A1A1A]">URL Image</label>
+                    <input type="text" id="c-image" class="w-full border border-[#E3E1DC] rounded-full px-4 py-2.5 mt-1 text-sm focus:outline-[#6B7A4F]" placeholder="https://...">
+                </div>
+                <div id="category-modal-msg" class="text-sm text-center hidden"></div>
+                <div class="flex gap-3">
+                    <button onclick="saveCategory()" class="flex-1 bg-[#6B7A4F] hover:bg-[#576440] text-white py-3 rounded-full text-sm font-medium transition">
+                        Enregistrer
+                    </button>
+                    <button onclick="closeCategoryModal()" class="flex-1 border border-[#E3E1DC] py-3 rounded-full text-sm font-medium hover:bg-[#F4F3EF] transition">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .tab-btn { background: #F4F3EF; color: #686663; }
+        .active-tab { background: #6B7A4F !important; color: white !important; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
