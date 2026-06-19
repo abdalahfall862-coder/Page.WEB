@@ -26,33 +26,31 @@ function updateSidebar() {
     const sidebarAvatar = document.getElementById('sidebar-avatar');
 
     if (token && user.name) {
-        sidebarUser.classList.remove('hidden');
-        sidebarLogin.classList.add('hidden');
-        sidebarLogout.classList.remove('hidden');
-        sidebarName.textContent = user.name;
-        sidebarAvatar.textContent = user.name.charAt(0).toUpperCase();
-
-        // Lien admin si role === 'admin'
-        const adminLink = document.getElementById('sidebar-admin-link');
-        if (adminLink) {
-            if (user.role === 'admin') {
-                adminLink.classList.remove('hidden');
-            } else {
-                adminLink.classList.add('hidden');
-            }
-        }
+        if (sidebarUser)   sidebarUser.classList.remove('hidden');
+        if (sidebarLogin)  sidebarLogin.classList.add('hidden');
+        if (sidebarLogout) sidebarLogout.classList.remove('hidden');
+        if (sidebarName)   sidebarName.textContent = user.name;
+        if (sidebarAvatar) sidebarAvatar.textContent = user.name.charAt(0).toUpperCase();
     } else {
-        sidebarUser.classList.add('hidden');
-        sidebarLogin.classList.remove('hidden');
-        sidebarLogout.classList.add('hidden');
+        if (sidebarUser)   sidebarUser.classList.add('hidden');
+        if (sidebarLogin)  sidebarLogin.classList.remove('hidden');
+        if (sidebarLogout) sidebarLogout.classList.add('hidden');
     }
+
+    // Lien admin discret dans navbar + sidebar
+    const navAdminLink     = document.getElementById('nav-admin-link');
+    const sidebarAdminLink = document.getElementById('sidebar-admin-link');
+    const isAdmin          = token && user.role === 'admin';
+
+    if (navAdminLink)     navAdminLink.classList.toggle('hidden', !isAdmin);
+    if (sidebarAdminLink) sidebarAdminLink.classList.toggle('hidden', !isAdmin);
 }
 
 // Fermer avec la touche Échap
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const sidebar = document.getElementById('sidebar');
-        if (!sidebar.classList.contains('translate-x-full')) {
+        if (sidebar && !sidebar.classList.contains('translate-x-full')) {
             toggleSidebar();
         }
     }

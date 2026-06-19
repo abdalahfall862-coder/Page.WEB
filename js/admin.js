@@ -19,6 +19,8 @@ async function adminLogin() {
         if (data.user?.role !== 'admin') { msg.textContent = 'Accès réservé aux administrateurs.'; msg.classList.remove('hidden'); return; }
 
         localStorage.setItem('admin-token', data.token);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         showDashboard();
     } catch (e) {
         msg.textContent = 'Erreur de connexion.';
