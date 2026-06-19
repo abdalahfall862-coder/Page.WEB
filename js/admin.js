@@ -239,25 +239,39 @@ async function deleteCategory(id) {
 
 // ── Commandes ─────────────────────────────────
 async function loadOrders() {
-    const tbody = document.getElementById('orders-table');
+    const tbody      = document.getElementById('orders-table');
+    const cardsDiv   = document.getElementById('orders-cards');
+    const statusColors = {
+        pending:   'bg-yellow-100 text-yellow-700',
+        confirmed: 'bg-blue-100 text-blue-700',
+        shipping:  'bg-purple-100 text-purple-700',
+        delivered: 'bg-green-100 text-green-700',
+        cancelled: 'bg-red-100 text-red-700'
+    };
+    const statusLabels = {
+        pending: 'En attente', confirmed: 'Confirmée',
+        shipping: 'Expédiée', delivered: 'Livrée', cancelled: 'Annulée'
+    };
+
     try {
         const res    = await fetch(`${ADMIN_API}/orders`, { headers: authHeaders() });
         const orders = await res.json();
-        const statusColors = {
-            pending:   'bg-yellow-100 text-yellow-700',
-            confirmed: 'bg-blue-100 text-blue-700',
-            shipped:   'bg-purple-100 text-purple-700',
-            delivered: 'bg-green-100 text-green-700',
-            cancelled: 'bg-red-100 text-red-700'
-        };
+
+        if (!orders.length) {
+            tbody.innerHTML   = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Aucune commande</td></tr>';
+            cardsDiv.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">Aucune commande</p>';
+            return;
+        }
+
+        // Table desktop
         tbody.innerHTML = orders.map(o => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 text-xs text-[#686663] font-mono">${String(o.id).slice(0,8)}...</td>
-                <td class="px-4 py-3">${o.user?.name || '—'}</td>
+                <td class="px-4 py-3">${o.user?.name || o.userId?.slice(0,8) || '—'}</td>
                 <td class="px-4 py-3 font-semibold text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100 text-gray-600'}">
-                        ${o.status}
+                        ${statusLabels[o.status] || o.status}
                     </span>
                 </td>
                 <td class="px-4 py-3">
@@ -265,14 +279,45 @@ async function loadOrders() {
                         <option value="">Changer...</option>
                         <option value="pending">En attente</option>
                         <option value="confirmed">Confirmée</option>
-                        <option value="shipped">Expédiée</option>
+                        <option value="shipping">Expédiée</option>
                         <option value="delivered">Livrée</option>
                         <option value="cancelled">Annulée</option>
                     </select>
                 </td>
             </tr>
         `).join('');
-    } catch (e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Erreur chargement</td></tr>'; }
+
+        // Cards mobile
+        cardsDiv.innerHTML = orders.map(o => `
+            <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <p class="text-xs text-[#686663] font-mono">#${String(o.id).slice(0,8)}</p>
+                        <p class="font-semibold text-[#1A1A1A] text-sm mt-0.5">${o.user?.name || o.userId?.slice(0,8) || '—'}</p>
+                    </div>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100 text-gray-600'}">
+                        ${statusLabels[o.status] || o.status}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="font-bold text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</p>
+                    <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs focus:outline-[#6B7A4F] bg-white">
+                        <option value="">Changer statut...</option>
+                        <option value="pending">En attente</option>
+                        <option value="confirmed">Confirmée</option>
+                        <option value="shipping">Expédiée</option>
+                        <option value="delivered">Livrée</option>
+                        <option value="cancelled">Annulée</option>
+                    </select>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-red-400">Erreur chargement commandes</td></tr>';
+        cardsDiv.innerHTML = '<p class="text-center py-8 text-red-400 text-sm">Erreur chargement</p>';
+        console.error('Orders:', e);
+    }
 }
 
 async function updateOrderStatus(id, status) {
