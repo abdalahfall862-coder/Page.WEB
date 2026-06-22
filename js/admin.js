@@ -239,8 +239,8 @@ async function deleteCategory(id) {
 
 // ── Commandes ─────────────────────────────────
 async function loadOrders() {
-    const tbody      = document.getElementById('orders-table');
-    const cardsDiv   = document.getElementById('orders-cards');
+    const tbody    = document.getElementById('orders-table');
+    const cardsDiv = document.getElementById('orders-cards');
     const statusColors = {
         pending:   'bg-yellow-100 text-yellow-700',
         confirmed: 'bg-blue-100 text-blue-700',
@@ -258,12 +258,12 @@ async function loadOrders() {
         const orders = await res.json();
 
         if (!orders.length) {
-            tbody.innerHTML   = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Aucune commande</td></tr>';
+            tbody.innerHTML    = '<tr><td colspan="6" class="text-center py-8 text-gray-400">Aucune commande</td></tr>';
             cardsDiv.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">Aucune commande</p>';
             return;
         }
 
-        // Table desktop
+        // ── Table desktop ──
         tbody.innerHTML = orders.map(o => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 text-xs text-[#686663] font-mono">${String(o.id).slice(0,8)}...</td>
@@ -275,6 +275,11 @@ async function loadOrders() {
                     </span>
                 </td>
                 <td class="px-4 py-3">
+                    <!-- ✅ Bouton Détails -->
+                    <button onclick='showOrderDetails(${JSON.stringify(o).replace(/'/g, "&#39;")})' 
+                        class="text-[#6B7A4F] hover:text-[#576440] text-xs px-3 py-1 rounded-full border border-[#6B7A4F] mr-2">
+                        Détails
+                    </button>
                     <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs focus:outline-[#6B7A4F] bg-white">
                         <option value="">Changer...</option>
                         <option value="pending">En attente</option>
@@ -287,7 +292,7 @@ async function loadOrders() {
             </tr>
         `).join('');
 
-        // Cards mobile
+        // ── Cards mobile ──
         cardsDiv.innerHTML = orders.map(o => `
             <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4">
                 <div class="flex justify-between items-start mb-3">
@@ -299,25 +304,98 @@ async function loadOrders() {
                         ${statusLabels[o.status] || o.status}
                     </span>
                 </div>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center gap-2">
                     <p class="font-bold text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</p>
-                    <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs focus:outline-[#6B7A4F] bg-white">
-                        <option value="">Changer statut...</option>
-                        <option value="pending">En attente</option>
-                        <option value="confirmed">Confirmée</option>
-                        <option value="shipping">Expédiée</option>
-                        <option value="delivered">Livrée</option>
-                        <option value="cancelled">Annulée</option>
-                    </select>
+                    <div class="flex gap-2">
+                        <!-- ✅ Bouton Détails mobile -->
+                        <button onclick='showOrderDetails(${JSON.stringify(o).replace(/'/g, "&#39;")})' 
+                            class="text-[#6B7A4F] text-xs px-3 py-1 rounded-full border border-[#6B7A4F]">
+                            Détails
+                        </button>
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs focus:outline-[#6B7A4F] bg-white">
+                            <option value="">Statut...</option>
+                            <option value="pending">En attente</option>
+                            <option value="confirmed">Confirmée</option>
+                            <option value="shipping">Expédiée</option>
+                            <option value="delivered">Livrée</option>
+                            <option value="cancelled">Annulée</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         `).join('');
 
     } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-red-400">Erreur chargement commandes</td></tr>';
+        tbody.innerHTML    = '<tr><td colspan="6" class="text-center py-8 text-red-400">Erreur chargement commandes</td></tr>';
         cardsDiv.innerHTML = '<p class="text-center py-8 text-red-400 text-sm">Erreur chargement</p>';
         console.error('Orders:', e);
     }
+}
+
+// ── Modale détails commande ────────────────────
+function showOrderDetails(o) {
+    const items = o.items.map(i => `
+        <div class="flex justify-between items-center py-2 border-b border-[#F4F3EF] last:border-0">
+            <span class="text-sm text-[#1A1A1A]">${i.name}</span>
+            <div class="text-right">
+                <span class="text-xs text-[#686663]">${i.quantity} × ${Number(i.priceAtPurchase).toLocaleString()} FCFA</span>
+                <p class="text-sm font-semibold text-[#6B7A4F]">${(i.quantity * i.priceAtPurchase).toLocaleString()} FCFA</p>
+            </div>
+        </div>
+    `).join('');
+
+    const deliveryCost = o.delivery?.cost || 0;
+    const date         = o.createdAt ? new Date(o.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" id="order-detail-modal" onclick="if(event.target===this)closeOrderDetails()">
+            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl max-h-[90vh] overflow-y-auto">
+
+                <!-- En-tête -->
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="font-bold text-[#1A1A1A]">Commande <span class="font-mono text-sm">#${String(o.id).slice(0,8)}</span></h3>
+                        <p class="text-xs text-[#686663] mt-0.5">${date}</p>
+                    </div>
+                    <button onclick="closeOrderDetails()" class="text-[#686663] hover:text-[#1A1A1A] text-xl leading-none">✕</button>
+                </div>
+
+                <!-- Client & Adresse -->
+                <div class="bg-[#F9F8F5] rounded-xl p-3 mb-4 space-y-1">
+                    <p class="text-sm"><span class="text-[#686663]">Client :</span> <span class="font-medium text-[#1A1A1A]">${o.user?.name || '—'}</span></p>
+                    <p class="text-sm"><span class="text-[#686663]">Email :</span> <span class="font-medium text-[#1A1A1A]">${o.user?.email || '—'}</span></p>
+                    <p class="text-sm"><span class="text-[#686663]">Adresse :</span> <span class="font-medium text-[#1A1A1A]">${o.shippingAddress?.street || '—'}, ${o.shippingAddress?.city || '—'}</span></p>
+                    <p class="text-sm"><span class="text-[#686663]">Livraison :</span> <span class="font-medium text-[#1A1A1A]">${o.delivery?.type || '—'}</span></p>
+                    <p class="text-sm"><span class="text-[#686663]">Paiement :</span> <span class="font-medium text-[#1A1A1A]">${o.paymentMethod || '—'}</span></p>
+                </div>
+
+                <!-- Produits commandés -->
+                <h4 class="font-semibold text-[#1A1A1A] text-sm mb-2">Produits commandés</h4>
+                <div class="mb-4">${items}</div>
+
+                <!-- Total -->
+                <div class="border-t border-[#E3E1DC] pt-3 space-y-1">
+                    <div class="flex justify-between text-sm text-[#686663]">
+                        <span>Sous-total</span>
+                        <span>${(Number(o.total) - deliveryCost).toLocaleString()} FCFA</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-[#686663]">
+                        <span>Livraison</span>
+                        <span>${Number(deliveryCost).toLocaleString()} FCFA</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-[#1A1A1A] pt-1">
+                        <span>Total</span>
+                        <span class="text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `);
+}
+
+function closeOrderDetails() {
+    document.getElementById('order-detail-modal')?.remove();
 }
 
 async function updateOrderStatus(id, status) {
