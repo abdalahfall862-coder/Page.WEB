@@ -6,7 +6,6 @@ async function adminLogin() {
     const email    = document.getElementById('admin-email').value.trim();
     const password = document.getElementById('admin-password').value;
     const msg      = document.getElementById('admin-login-msg');
-
     try {
         const res  = await fetch('https://mon-api-vnhx.onrender.com/api/login', {
             method: 'POST',
@@ -14,10 +13,8 @@ async function adminLogin() {
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-
         if (!res.ok) { msg.textContent = data.error || 'Accès refusé.'; msg.classList.remove('hidden'); return; }
         if (data.user?.role !== 'admin') { msg.textContent = 'Accès réservé aux administrateurs.'; msg.classList.remove('hidden'); return; }
-
         localStorage.setItem('admin-token', data.token);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -34,9 +31,7 @@ function adminLogout() {
     document.getElementById('admin-dashboard').classList.add('hidden');
 }
 
-function getToken() {
-    return localStorage.getItem('admin-token');
-}
+function getToken() { return localStorage.getItem('admin-token'); }
 
 function authHeaders() {
     return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
@@ -72,16 +67,19 @@ function showTab(tab) {
         document.getElementById(`tab-${p}`).classList.toggle('tab-btn', true);
     });
     if (tab === 'categories') loadCategories();
-    if (tab === 'orders')    loadOrders();
-    if (tab === 'users')     loadUsers();
+    if (tab === 'orders')     loadOrders();
+    if (tab === 'users')      loadUsers();
 }
 
 // ── Produits ──────────────────────────────────
 async function loadProducts() {
-    const tbody = document.getElementById('products-table');
+    const tbody     = document.getElementById('products-table');
+    const cardsDiv  = document.getElementById('products-cards');
     try {
         const res      = await fetch(`${ADMIN_API}/products`, { headers: authHeaders() });
         const products = await res.json();
+
+        // ── Table desktop ──
         tbody.innerHTML = products.map(p => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 flex items-center gap-3">
@@ -93,17 +91,41 @@ async function loadProducts() {
                 <td class="px-4 py-3 text-[#686663]">${p.category?.name || '—'}</td>
                 <td class="px-4 py-3">
                     <div class="flex gap-2 justify-end">
-                        <button onclick="editProduct(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[#6B7A4F] hover:text-[#576440] text-sm px-3 py-1 rounded-full border border-[#6B7A4F]">
+                        <button onclick="editProduct(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[#6B7A4F] text-sm px-3 py-1 rounded-full border border-[#6B7A4F]">
                             <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button onclick="deleteProduct('${p.id}')" class="text-red-500 hover:text-red-600 text-sm px-3 py-1 rounded-full border border-red-200">
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-500 text-sm px-3 py-1 rounded-full border border-red-200">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         `).join('');
-    } catch (e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Erreur chargement</td></tr>'; }
+
+        // ── Cards mobile ──
+        cardsDiv.innerHTML = products.map(p => `
+            <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4 flex items-center gap-3">
+                <img src="${p.image}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-[#1A1A1A] text-sm truncate">${p.name}</p>
+                    <p class="text-[#6B7A4F] font-bold text-sm mt-0.5">${Number(p.price).toLocaleString()} FCFA</p>
+                    <p class="text-xs text-[#686663] mt-0.5">Stock : ${p.stock ?? '—'} · ${p.category?.name || '—'}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="editProduct(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[#6B7A4F] text-xs px-3 py-1.5 rounded-full border border-[#6B7A4F]">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button onclick="deleteProduct('${p.id}')" class="text-red-500 text-xs px-3 py-1.5 rounded-full border border-red-200">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        tbody.innerHTML   = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Erreur chargement</td></tr>';
+        cardsDiv.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">Erreur chargement</p>';
+    }
 }
 
 async function loadCategoriesSelect() {
@@ -152,19 +174,16 @@ async function saveProduct() {
         description: document.getElementById('p-description').value.trim(),
         categoryId:  document.getElementById('p-category').value
     };
-
     if (!body.name || !body.price) {
         msg.textContent = 'Nom et prix sont obligatoires.';
         msg.className = 'text-sm text-center text-red-500';
         msg.classList.remove('hidden');
         return;
     }
-
     try {
         const url    = editingProductId ? `${ADMIN_API}/products/${editingProductId}` : `${ADMIN_API}/products`;
         const method = editingProductId ? 'PUT' : 'POST';
         const res    = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
-
         if (!res.ok) throw new Error('Erreur serveur');
         msg.textContent = editingProductId ? 'Produit modifié !' : 'Produit ajouté !';
         msg.className = 'text-sm text-center text-green-600';
@@ -186,24 +205,40 @@ async function deleteProduct(id) {
 
 // ── Catégories ────────────────────────────────
 async function loadCategories() {
-    const tbody = document.getElementById('categories-table');
+    const tbody    = document.getElementById('categories-table');
+    const cardsDiv = document.getElementById('categories-cards');
     try {
         const res  = await fetch(`${ADMIN_API}/categories`, { headers: authHeaders() });
         const cats = await res.json();
+
+        // ── Table desktop ──
         tbody.innerHTML = cats.map(c => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 font-medium text-[#1A1A1A]">${c.name}</td>
-                <td class="px-4 py-3">
-                    <img src="${c.image}" class="w-10 h-10 rounded-lg object-cover">
-                </td>
+                <td class="px-4 py-3"><img src="${c.image}" class="w-10 h-10 rounded-lg object-cover"></td>
                 <td class="px-4 py-3 text-right">
-                    <button onclick="deleteCategory('${c.id}')" class="text-red-500 hover:text-red-600 text-sm px-3 py-1 rounded-full border border-red-200">
+                    <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-sm px-3 py-1 rounded-full border border-red-200">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
             </tr>
         `).join('');
-    } catch (e) {}
+
+        // ── Cards mobile ──
+        cardsDiv.innerHTML = cats.map(c => `
+            <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4 flex items-center gap-3">
+                <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">
+                <p class="flex-1 font-semibold text-[#1A1A1A] text-sm">${c.name}</p>
+                <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-xs px-3 py-1.5 rounded-full border border-red-200">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        tbody.innerHTML    = '<tr><td colspan="3" class="text-center py-8 text-gray-400">Erreur chargement</td></tr>';
+        cardsDiv.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">Erreur chargement</p>';
+    }
 }
 
 function openCategoryModal() {
@@ -228,6 +263,7 @@ async function saveCategory() {
         await fetch(`${ADMIN_API}/categories`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
         closeCategoryModal();
         loadCategories();
+        loadCategoriesSelect();
     } catch (e) {}
 }
 
@@ -252,7 +288,6 @@ async function loadOrders() {
         pending: 'En attente', confirmed: 'Confirmée',
         shipping: 'Expédiée', delivered: 'Livrée', cancelled: 'Annulée'
     };
-
     try {
         const res    = await fetch(`${ADMIN_API}/orders`, { headers: authHeaders() });
         const orders = await res.json();
@@ -267,7 +302,7 @@ async function loadOrders() {
         tbody.innerHTML = orders.map(o => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 text-xs text-[#686663] font-mono">${String(o.id).slice(0,8)}...</td>
-                <td class="px-4 py-3">${o.user?.name || o.userId?.slice(0,8) || '—'}</td>
+                <td class="px-4 py-3">${o.user?.name || '—'}</td>
                 <td class="px-4 py-3 font-semibold text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100 text-gray-600'}">
@@ -275,12 +310,11 @@ async function loadOrders() {
                     </span>
                 </td>
                 <td class="px-4 py-3">
-                    <!-- ✅ Bouton Détails -->
                     <button onclick='showOrderDetails(${JSON.stringify(o).replace(/'/g, "&#39;")})' 
-                        class="text-[#6B7A4F] hover:text-[#576440] text-xs px-3 py-1 rounded-full border border-[#6B7A4F] mr-2">
+                        class="text-[#6B7A4F] text-xs px-3 py-1 rounded-full border border-[#6B7A4F] mr-2">
                         Détails
                     </button>
-                    <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs focus:outline-[#6B7A4F] bg-white">
+                    <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs bg-white">
                         <option value="">Changer...</option>
                         <option value="pending">En attente</option>
                         <option value="confirmed">Confirmée</option>
@@ -298,35 +332,32 @@ async function loadOrders() {
                 <div class="flex justify-between items-start mb-3">
                     <div>
                         <p class="text-xs text-[#686663] font-mono">#${String(o.id).slice(0,8)}</p>
-                        <p class="font-semibold text-[#1A1A1A] text-sm mt-0.5">${o.user?.name || o.userId?.slice(0,8) || '—'}</p>
+                        <p class="font-semibold text-[#1A1A1A] text-sm mt-0.5">${o.user?.name || '—'}</p>
+                        <p class="font-bold text-[#6B7A4F] mt-0.5">${Number(o.total).toLocaleString()} FCFA</p>
                     </div>
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100 text-gray-600'}">
                         ${statusLabels[o.status] || o.status}
                     </span>
                 </div>
-                <div class="flex justify-between items-center gap-2">
-                    <p class="font-bold text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</p>
-                    <div class="flex gap-2">
-                        <!-- ✅ Bouton Détails mobile -->
-                        <button onclick='showOrderDetails(${JSON.stringify(o).replace(/'/g, "&#39;")})' 
-                            class="text-[#6B7A4F] text-xs px-3 py-1 rounded-full border border-[#6B7A4F]">
-                            Détails
-                        </button>
-                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="border border-[#E3E1DC] rounded-full px-3 py-1 text-xs focus:outline-[#6B7A4F] bg-white">
-                            <option value="">Statut...</option>
-                            <option value="pending">En attente</option>
-                            <option value="confirmed">Confirmée</option>
-                            <option value="shipping">Expédiée</option>
-                            <option value="delivered">Livrée</option>
-                            <option value="cancelled">Annulée</option>
-                        </select>
-                    </div>
+                <div class="flex gap-2">
+                    <button onclick='showOrderDetails(${JSON.stringify(o).replace(/'/g, "&#39;")})' 
+                        class="flex-1 text-[#6B7A4F] text-xs py-2 rounded-full border border-[#6B7A4F] text-center">
+                        Détails
+                    </button>
+                    <select onchange="updateOrderStatus('${o.id}', this.value)" class="flex-1 border border-[#E3E1DC] rounded-full px-2 py-2 text-xs bg-white">
+                        <option value="">Changer statut...</option>
+                        <option value="pending">En attente</option>
+                        <option value="confirmed">Confirmée</option>
+                        <option value="shipping">Expédiée</option>
+                        <option value="delivered">Livrée</option>
+                        <option value="cancelled">Annulée</option>
+                    </select>
                 </div>
             </div>
         `).join('');
 
     } catch (e) {
-        tbody.innerHTML    = '<tr><td colspan="6" class="text-center py-8 text-red-400">Erreur chargement commandes</td></tr>';
+        tbody.innerHTML    = '<tr><td colspan="6" class="text-center py-8 text-red-400">Erreur chargement</td></tr>';
         cardsDiv.innerHTML = '<p class="text-center py-8 text-red-400 text-sm">Erreur chargement</p>';
         console.error('Orders:', e);
     }
@@ -348,19 +379,16 @@ function showOrderDetails(o) {
     const date         = o.createdAt ? new Date(o.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
 
     document.body.insertAdjacentHTML('beforeend', `
-        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" id="order-detail-modal" onclick="if(event.target===this)closeOrderDetails()">
-            <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl max-h-[90vh] overflow-y-auto">
-
-                <!-- En-tête -->
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center" id="order-detail-modal" onclick="if(event.target===this)closeOrderDetails()">
+            <div class="bg-white rounded-t-3xl md:rounded-2xl p-5 md:p-6 w-full md:max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+                <div class="w-10 h-1 bg-[#E3E1DC] rounded-full mx-auto mb-4 md:hidden"></div>
                 <div class="flex justify-between items-center mb-4">
                     <div>
                         <h3 class="font-bold text-[#1A1A1A]">Commande <span class="font-mono text-sm">#${String(o.id).slice(0,8)}</span></h3>
                         <p class="text-xs text-[#686663] mt-0.5">${date}</p>
                     </div>
-                    <button onclick="closeOrderDetails()" class="text-[#686663] hover:text-[#1A1A1A] text-xl leading-none">✕</button>
+                    <button onclick="closeOrderDetails()" class="text-[#686663] hover:text-[#1A1A1A] text-xl">✕</button>
                 </div>
-
-                <!-- Client & Adresse -->
                 <div class="bg-[#F9F8F5] rounded-xl p-3 mb-4 space-y-1">
                     <p class="text-sm"><span class="text-[#686663]">Client :</span> <span class="font-medium text-[#1A1A1A]">${o.user?.name || '—'}</span></p>
                     <p class="text-sm"><span class="text-[#686663]">Email :</span> <span class="font-medium text-[#1A1A1A]">${o.user?.email || '—'}</span></p>
@@ -368,12 +396,8 @@ function showOrderDetails(o) {
                     <p class="text-sm"><span class="text-[#686663]">Livraison :</span> <span class="font-medium text-[#1A1A1A]">${o.delivery?.type || '—'}</span></p>
                     <p class="text-sm"><span class="text-[#686663]">Paiement :</span> <span class="font-medium text-[#1A1A1A]">${o.paymentMethod || '—'}</span></p>
                 </div>
-
-                <!-- Produits commandés -->
                 <h4 class="font-semibold text-[#1A1A1A] text-sm mb-2">Produits commandés</h4>
                 <div class="mb-4">${items}</div>
-
-                <!-- Total -->
                 <div class="border-t border-[#E3E1DC] pt-3 space-y-1">
                     <div class="flex justify-between text-sm text-[#686663]">
                         <span>Sous-total</span>
@@ -388,7 +412,6 @@ function showOrderDetails(o) {
                         <span class="text-[#6B7A4F]">${Number(o.total).toLocaleString()} FCFA</span>
                     </div>
                 </div>
-
             </div>
         </div>
     `);
@@ -408,10 +431,13 @@ async function updateOrderStatus(id, status) {
 
 // ── Utilisateurs ──────────────────────────────
 async function loadUsers() {
-    const tbody = document.getElementById('users-table');
+    const tbody    = document.getElementById('users-table');
+    const cardsDiv = document.getElementById('users-cards');
     try {
         const res   = await fetch(`${ADMIN_API}/users`, { headers: authHeaders() });
         const users = await res.json();
+
+        // ── Table desktop ──
         tbody.innerHTML = users.map(u => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 font-medium text-[#1A1A1A]">${u.name}</td>
@@ -423,13 +449,39 @@ async function loadUsers() {
                 </td>
                 <td class="px-4 py-3 text-right">
                     ${u.role !== 'admin' ? `
-                    <button onclick="deleteUser('${u.id}')" class="text-red-500 hover:text-red-600 text-sm px-3 py-1 rounded-full border border-red-200">
+                    <button onclick="deleteUser('${u.id}')" class="text-red-500 text-sm px-3 py-1 rounded-full border border-red-200">
                         <i class="fa-solid fa-trash"></i>
                     </button>` : ''}
                 </td>
             </tr>
         `).join('');
-    } catch (e) {}
+
+        // ── Cards mobile ──
+        cardsDiv.innerHTML = users.map(u => `
+            <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-[#F4F3EF] flex items-center justify-center flex-shrink-0">
+                    <span class="text-sm font-bold text-[#6B7A4F]">${u.name?.charAt(0).toUpperCase() || '?'}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-[#1A1A1A] text-sm truncate">${u.name}</p>
+                    <p class="text-xs text-[#686663] truncate">${u.email}</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${u.role === 'admin' ? 'bg-[#6B7A4F] text-white' : 'bg-[#F4F3EF] text-[#686663]'}">
+                        ${u.role || 'user'}
+                    </span>
+                    ${u.role !== 'admin' ? `
+                    <button onclick="deleteUser('${u.id}')" class="text-red-500 text-xs px-2 py-1.5 rounded-full border border-red-200">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>` : ''}
+                </div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        tbody.innerHTML    = '<tr><td colspan="4" class="text-center py-8 text-gray-400">Erreur chargement</td></tr>';
+        cardsDiv.innerHTML = '<p class="text-center py-8 text-gray-400 text-sm">Erreur chargement</p>';
+    }
 }
 
 async function deleteUser(id) {
