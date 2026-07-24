@@ -33,7 +33,7 @@ function adminLogout() {
 
 function getToken() { return localStorage.getItem('admin-token'); }
 
-function authHeaders() {
+function adminAuthHeaders() {
     return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
 }
 
@@ -48,7 +48,7 @@ async function showDashboard() {
 // ── Stats ─────────────────────────────────────
 async function loadStats() {
     try {
-        const res  = await fetch(`${ADMIN_API}/stats`, { headers: authHeaders() });
+        const res  = await fetch(`${ADMIN_API}/stats`, { headers: adminAuthHeaders() });
         const data = await res.json();
         document.getElementById('stat-users').textContent    = data.users;
         document.getElementById('stat-products').textContent = data.products;
@@ -76,14 +76,14 @@ async function loadProducts() {
     const tbody     = document.getElementById('products-table');
     const cardsDiv  = document.getElementById('products-cards');
     try {
-        const res      = await fetch(`${ADMIN_API}/products`, { headers: authHeaders() });
+        const res      = await fetch(`${ADMIN_API}/products`, { headers: adminAuthHeaders() });
         const products = await res.json();
 
         // ── Table desktop ──
         tbody.innerHTML = products.map(p => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 flex items-center gap-3">
-                    <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover">
+                    <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover" alt="${p.name}" loading="lazy">
                     <span class="font-medium text-[#1A1A1A]">${p.name}</span>
                 </td>
                 <td class="px-4 py-3 text-[#6B7A4F] font-semibold">${Number(p.price).toLocaleString()} FCFA</td>
@@ -105,7 +105,7 @@ async function loadProducts() {
         // ── Cards mobile ──
         cardsDiv.innerHTML = products.map(p => `
             <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4 flex items-center gap-3">
-                <img src="${p.image}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
+                <img src="${p.image}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" alt="${p.name}" loading="lazy">
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold text-[#1A1A1A] text-sm truncate">${p.name}</p>
                     <p class="text-[#6B7A4F] font-bold text-sm mt-0.5">${Number(p.price).toLocaleString()} FCFA</p>
@@ -130,7 +130,7 @@ async function loadProducts() {
 
 async function loadCategoriesSelect() {
     try {
-        const res  = await fetch(`${ADMIN_API}/categories`, { headers: authHeaders() });
+        const res  = await fetch(`${ADMIN_API}/categories`, { headers: adminAuthHeaders() });
         const cats = await res.json();
         const sel  = document.getElementById('p-category');
         sel.innerHTML = '<option value="">Choisir une catégorie</option>' +
@@ -183,7 +183,7 @@ async function saveProduct() {
     try {
         const url    = editingProductId ? `${ADMIN_API}/products/${editingProductId}` : `${ADMIN_API}/products`;
         const method = editingProductId ? 'PUT' : 'POST';
-        const res    = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+        const res    = await fetch(url, { method, headers: adminAuthHeaders(), body: JSON.stringify(body) });
         if (!res.ok) throw new Error('Erreur serveur');
         msg.textContent = editingProductId ? 'Produit modifié !' : 'Produit ajouté !';
         msg.className = 'text-sm text-center text-green-600';
@@ -198,7 +198,7 @@ async function saveProduct() {
 
 async function deleteProduct(id) {
     if (!confirm('Supprimer ce produit ?')) return;
-    await fetch(`${ADMIN_API}/products/${id}`, { method: 'DELETE', headers: authHeaders() });
+    await fetch(`${ADMIN_API}/products/${id}`, { method: 'DELETE', headers: adminAuthHeaders() });
     loadProducts();
     loadStats();
 }
@@ -208,14 +208,14 @@ async function loadCategories() {
     const tbody    = document.getElementById('categories-table');
     const cardsDiv = document.getElementById('categories-cards');
     try {
-        const res  = await fetch(`${ADMIN_API}/categories`, { headers: authHeaders() });
+        const res  = await fetch(`${ADMIN_API}/categories`, { headers: adminAuthHeaders() });
         const cats = await res.json();
 
         // ── Table desktop ──
         tbody.innerHTML = cats.map(c => `
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 font-medium text-[#1A1A1A]">${c.name}</td>
-                <td class="px-4 py-3"><img src="${c.image}" class="w-10 h-10 rounded-lg object-cover"></td>
+                <td class="px-4 py-3"><img src="${c.image}" class="w-10 h-10 rounded-lg object-cover" alt="${c.name}" loading="lazy"></td>
                 <td class="px-4 py-3 text-right">
                     <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-sm px-3 py-1 rounded-full border border-red-200">
                         <i class="fa-solid fa-trash"></i>
@@ -227,7 +227,7 @@ async function loadCategories() {
         // ── Cards mobile ──
         cardsDiv.innerHTML = cats.map(c => `
             <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4 flex items-center gap-3">
-                <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">
+                <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0" alt="${c.name}" loading="lazy">
                 <p class="flex-1 font-semibold text-[#1A1A1A] text-sm">${c.name}</p>
                 <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-xs px-3 py-1.5 rounded-full border border-red-200">
                     <i class="fa-solid fa-trash"></i>
@@ -260,7 +260,7 @@ async function saveCategory() {
     };
     if (!body.name) { msg.textContent = 'Nom requis.'; msg.className = 'text-sm text-center text-red-500'; msg.classList.remove('hidden'); return; }
     try {
-        await fetch(`${ADMIN_API}/categories`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+        await fetch(`${ADMIN_API}/categories`, { method: 'POST', headers: adminAuthHeaders(), body: JSON.stringify(body) });
         closeCategoryModal();
         loadCategories();
         loadCategoriesSelect();
@@ -269,7 +269,7 @@ async function saveCategory() {
 
 async function deleteCategory(id) {
     if (!confirm('Supprimer cette catégorie ?')) return;
-    await fetch(`${ADMIN_API}/categories/${id}`, { method: 'DELETE', headers: authHeaders() });
+    await fetch(`${ADMIN_API}/categories/${id}`, { method: 'DELETE', headers: adminAuthHeaders() });
     loadCategories();
 }
 
@@ -289,7 +289,7 @@ async function loadOrders() {
         shipping: 'Expédiée', delivered: 'Livrée', cancelled: 'Annulée'
     };
     try {
-        const res    = await fetch(`${ADMIN_API}/orders`, { headers: authHeaders() });
+        const res    = await fetch(`${ADMIN_API}/orders`, { headers: adminAuthHeaders() });
         const orders = await res.json();
 
         if (!orders.length) {
@@ -424,7 +424,7 @@ function closeOrderDetails() {
 async function updateOrderStatus(id, status) {
     if (!status) return;
     await fetch(`${ADMIN_API}/orders/${id}/status`, {
-        method: 'PUT', headers: authHeaders(), body: JSON.stringify({ status })
+        method: 'PUT', headers: adminAuthHeaders(), body: JSON.stringify({ status })
     });
     loadOrders();
 }
@@ -434,7 +434,7 @@ async function loadUsers() {
     const tbody    = document.getElementById('users-table');
     const cardsDiv = document.getElementById('users-cards');
     try {
-        const res   = await fetch(`${ADMIN_API}/users`, { headers: authHeaders() });
+        const res   = await fetch(`${ADMIN_API}/users`, { headers: adminAuthHeaders() });
         const users = await res.json();
 
         // ── Table desktop ──
@@ -486,7 +486,7 @@ async function loadUsers() {
 
 async function deleteUser(id) {
     if (!confirm('Supprimer cet utilisateur ?')) return;
-    await fetch(`${ADMIN_API}/users/${id}`, { method: 'DELETE', headers: authHeaders() });
+    await fetch(`${ADMIN_API}/users/${id}`, { method: 'DELETE', headers: adminAuthHeaders() });
     loadUsers();
     loadStats();
 }

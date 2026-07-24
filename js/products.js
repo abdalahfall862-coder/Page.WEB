@@ -15,8 +15,6 @@ async function loadProducts() {
     const urlCategory = urlParams.get('category');
 
     if (urlCategory && !category) {
-        const select = document.getElementById('categoryId-filter');
-        if (select) select.value = urlCategory;
         params.append('categoryId', urlCategory);
     } else if (category) {
         params.append('categoryId', category);
@@ -51,7 +49,7 @@ async function loadProducts() {
             <div class="bg-white rounded-[24px] p-4 shadow-sm hover:shadow-md transition group">
                 <div class="relative overflow-hidden rounded-[16px] mb-3">
                     <img src="${product.image}" alt="${product.name}"
-                         class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                         class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                 </div>
                 <h3 class="font-semibold text-sm text-[#1A1A1A] truncate">${product.name}</h3>
                 <p class="text-[#6B7A4F] font-bold mt-1">${Number(product.price).toLocaleString()} FCFA</p>

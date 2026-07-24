@@ -8,7 +8,7 @@ async function loadCategories() {
         container.innerHTML = data.map(cat => `
             <a href="products.html?category=${cat.id}" class="flex flex-col items-center group cursor-pointer">
                 <div class="w-24 h-24 rounded-full bg-[#F4F3EF] group-hover:bg-[#EAE8E3] transition-all flex items-center justify-center overflow-hidden mb-3">
-                    <img src="${cat.image}" class="w-14 h-14 object-cover mix-blend-multiply" alt="${cat.name}">
+                    <img src="${cat.image}" class="w-14 h-14 object-cover mix-blend-multiply" alt="${cat.name}" loading="lazy">
                 </div>
                 <span class="text-xs font-semibold">${cat.name}</span>
             </a>
@@ -27,7 +27,7 @@ async function loadFeaturedProducts() {
         container.innerHTML = products.map(product => `
             <div class="bg-white rounded-[24px] p-4 shadow-sm hover:shadow-md transition group">
                 <div class="relative overflow-hidden rounded-[16px] mb-3">
-                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                 </div>
                 <h3 class="font-semibold text-sm text-[#1A1A1A]">${product.name}</h3>
                 <p class="text-[#6B7A4F] font-bold mt-1">${Number(product.price).toLocaleString()} FCFA</p>

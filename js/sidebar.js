@@ -40,10 +40,16 @@ function updateSidebar() {
     // Lien admin discret dans navbar + sidebar
     const navAdminLink     = document.getElementById('nav-admin-link');
     const sidebarAdminLink = document.getElementById('sidebar-admin-link');
-    const isAdmin          = token && user.role === 'admin';
+    const isAdmin          = !!(token && user.role === 'admin');
 
-    if (navAdminLink)     navAdminLink.classList.toggle('hidden', !isAdmin);
-    if (sidebarAdminLink) sidebarAdminLink.classList.toggle('hidden', !isAdmin);
+    if (navAdminLink) navAdminLink.classList.toggle('hidden', !isAdmin);
+    if (sidebarAdminLink) {
+        // sidebarAdminLink est un lien "flex" (icône + texte) : basculer
+        // uniquement "hidden" laisserait l'élément sans display:flex une
+        // fois réaffiché, cassant l'alignement de l'icône et du texte.
+        sidebarAdminLink.classList.toggle('hidden', !isAdmin);
+        sidebarAdminLink.classList.toggle('flex', isAdmin);
+    }
 }
 
 // Fermer avec la touche Échap

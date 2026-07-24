@@ -44,7 +44,7 @@ async function loadCart() {
             subtotal += itemTotal;
             return `
                 <div class="flex items-center gap-4 bg-white rounded-[16px] p-4 shadow-sm">
-                    <img src="${image}" class="w-20 h-20 object-cover rounded-[12px]" alt="${name}">
+                    <img src="${image}" class="w-20 h-20 object-cover rounded-[12px]" alt="${name}" loading="lazy">
                     <div class="flex-1">
                         <h3 class="font-semibold text-sm">${name}</h3>
                         <p class="text-[#6B7A4F] font-bold">${price.toLocaleString()} FCFA</p>
@@ -117,19 +117,16 @@ async function checkout() {
     const btn = document.querySelector('button[onclick="checkout()"]');
     if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours...'; }
 
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = 'login.html';
-            return;
-        }
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-        const res = await fetch('https://mon-api-vnhx.onrender.com/api/orders', {
+    try {
+        const res = await apiFetch(`${API_BASE_URL}/orders`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: authHeaders(),
             body: JSON.stringify({
                 shippingAddress: {
                     street,
@@ -157,7 +154,7 @@ async function checkout() {
         setTimeout(() => { window.location.href = 'index.html'; }, 1500);
 
     } catch (error) {
-        showCheckoutMsg('Erreur de connexion. Réessayez.', 'red');
+        showCheckoutMsg(error.message || 'Erreur de connexion. Réessayez.', 'red');
         if (btn) { btn.disabled = false; btn.innerHTML = 'Passer la commande <i class="fa-solid fa-arrow-right ml-2"></i>'; }
         console.error('Checkout:', error);
     }

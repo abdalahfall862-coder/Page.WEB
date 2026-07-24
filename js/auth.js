@@ -1,5 +1,14 @@
 // auth.js — Gestion authentification MethShop
 
+// Bascule d'affichage qui respecte les classes responsives Tailwind
+// (ex: "hidden md:block"). Toucher directement la classe "hidden" casserait
+// le comportement mobile puisqu'elle ne serait alors plus jamais réappliquée
+// en dessous du breakpoint md.
+function setForcedHidden(el, forceHide) {
+    if (!el) return;
+    el.style.display = forceHide ? 'none' : '';
+}
+
 function checkAuth() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -8,14 +17,11 @@ function checkAuth() {
     const userMenu    = document.getElementById('user-menu');
     const userName    = document.getElementById('user-name');
 
-    if (token && user.name) {
-        if (authButtons) authButtons.classList.add('hidden');
-        if (userMenu) { userMenu.classList.remove('hidden'); userMenu.classList.add('flex'); }
-        if (userName) userName.textContent = user.name;
-    } else {
-        if (authButtons) authButtons.classList.remove('hidden');
-        if (userMenu) { userMenu.classList.add('hidden'); userMenu.classList.remove('flex'); }
-    }
+    const isLoggedIn = !!(token && user.name);
+
+    setForcedHidden(authButtons, isLoggedIn);
+    setForcedHidden(userMenu, !isLoggedIn);
+    if (userName) userName.textContent = user.name || '';
 }
 
 async function login() {
