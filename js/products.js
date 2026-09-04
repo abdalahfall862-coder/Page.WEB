@@ -14,17 +14,15 @@ async function loadProducts() {
     const urlParams   = new URLSearchParams(window.location.search);
     const urlCategory = urlParams.get('category');
 
-    if (urlCategory && !category) {
-        params.append('categoryId', urlCategory);
-    } else if (category) {
+    if (category) {
         params.append('categoryId', category);
+    } else if (urlCategory) {
+        params.append('categoryId', urlCategory);
     }
 
     if (search) params.append('search', search);
     if (minPrice) params.append('minPrice', minPrice);
     if (maxPrice) params.append('maxPrice', maxPrice);
-
-    params.append('limit', 12);
 
     container.innerHTML = `
         <div class="text-center py-12 col-span-full">
@@ -70,6 +68,14 @@ async function loadProducts() {
 }
 
 function filterProducts() {
+    const category = document.getElementById('category-filter')?.value;
+    const url = new URL(window.location);
+    if (category) {
+        url.searchParams.set('category', category);
+    } else {
+        url.searchParams.delete('category');
+    }
+    window.history.replaceState({}, '', url);
     loadProducts();
 }
 
@@ -131,8 +137,8 @@ function showToast(msg) {
     }, 2000);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadCategories();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadCategories();
     loadProducts();
     updateCartCount();
 });
