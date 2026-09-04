@@ -1,5 +1,6 @@
 const ADMIN_API = 'https://mon-api-vnhx.onrender.com/api/admin';
 let editingProductId = null;
+let editingCategoryId = null;
 
 // ── Auth ──────────────────────────────────────
 async function adminLogin() {
@@ -220,10 +221,15 @@ async function loadCategories() {
             <tr class="border-t border-[#F4F3EF] hover:bg-[#FCFBFA]">
                 <td class="px-4 py-3 font-medium text-[#1A1A1A]">${c.name}</td>
                 <td class="px-4 py-3"><img src="${c.image}" class="w-10 h-10 rounded-lg object-cover" alt="${c.name}" loading="lazy"></td>
-                <td class="px-4 py-3 text-right">
-                    <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-sm px-3 py-1 rounded-full border border-red-200">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                <td class="px-4 py-3">
+                    <div class="flex gap-2 justify-end">
+                        <button onclick='editCategory(${JSON.stringify(c).replace(/"/g, '&quot;')})' class="text-[#6B7A4F] text-sm px-3 py-1 rounded-full border border-[#6B7A4F]">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-sm px-3 py-1 rounded-full border border-red-200">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -233,9 +239,14 @@ async function loadCategories() {
             <div class="bg-white rounded-2xl border border-[#E3E1DC] p-4 flex items-center gap-3">
                 <img src="${c.image}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0" alt="${c.name}" loading="lazy">
                 <p class="flex-1 font-semibold text-[#1A1A1A] text-sm">${c.name}</p>
-                <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-xs px-3 py-1.5 rounded-full border border-red-200">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <div class="flex flex-col gap-2">
+                    <button onclick='editCategory(${JSON.stringify(c).replace(/"/g, '&quot;')})' class="text-[#6B7A4F] text-xs px-3 py-1.5 rounded-full border border-[#6B7A4F]">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button onclick="deleteCategory('${c.id}')" class="text-red-500 text-xs px-3 py-1.5 rounded-full border border-red-200">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
         `).join('');
 
@@ -246,6 +257,8 @@ async function loadCategories() {
 }
 
 function openCategoryModal() {
+    editingCategoryId = null;
+    document.getElementById('category-modal-title').textContent = 'Ajouter une catégorie';
     document.getElementById('c-name').value  = '';
     document.getElementById('c-image').value = '';
     document.getElementById('category-modal-msg').classList.add('hidden');
@@ -257,6 +270,16 @@ function closeCategoryModal() {
     document.getElementById('category-modal').classList.add('hidden');
 }
 
+function editCategory(c) {
+    editingCategoryId = c.id;
+    document.getElementById('category-modal-title').textContent = 'Modifier la catégorie';
+    document.getElementById('c-name').value  = c.name || '';
+    document.getElementById('c-image').value = c.image || '';
+    document.getElementById('category-modal-msg').classList.add('hidden');
+    setPreview('c-image-preview', c.image || '');
+    document.getElementById('category-modal').classList.remove('hidden');
+}
+
 async function saveCategory() {
     const msg  = document.getElementById('category-modal-msg');
     const body = {
@@ -265,8 +288,10 @@ async function saveCategory() {
     };
     if (!body.name) { msg.textContent = 'Nom requis.'; msg.className = 'text-sm text-center text-red-500'; msg.classList.remove('hidden'); return; }
     try {
-        const res  = await fetch(`${ADMIN_API}/categories`, { method: 'POST', headers: adminAuthHeaders(), body: JSON.stringify(body) });
-        const data = await res.json().catch(() => null);
+        const url    = editingCategoryId ? `${ADMIN_API}/categories/${editingCategoryId}` : `${ADMIN_API}/categories`;
+        const method = editingCategoryId ? 'PUT' : 'POST';
+        const res    = await fetch(url, { method, headers: adminAuthHeaders(), body: JSON.stringify(body) });
+        const data   = await res.json().catch(() => null);
         if (!res.ok) throw new Error(data?.error || `Erreur ${res.status}`);
         closeCategoryModal();
         loadCategories();
