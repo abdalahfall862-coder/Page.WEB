@@ -169,12 +169,11 @@ function editProduct(p) {
 
 async function saveProduct() {
     const msg  = document.getElementById('product-modal-msg');
-    const imageVal = document.getElementById('p-image').value.trim();
     const body = {
         name:        document.getElementById('p-name').value.trim(),
         price:       Number(document.getElementById('p-price').value),
         stock:       Number(document.getElementById('p-stock').value),
-        image:       imageVal.startsWith('data:') ? '' : imageVal,
+        image:       document.getElementById('p-image').value.trim(),
         description: document.getElementById('p-description').value.trim(),
         categoryId:  document.getElementById('p-category').value
     };
@@ -600,14 +599,14 @@ async function handleGalleryFileSelect(event) {
     document.getElementById('gallery-upload-content').classList.add('hidden');
     document.getElementById('gallery-upload-loading').classList.remove('hidden');
     try {
-        const url = await uploadImage(file);
+        const base64 = await compressAndConvertToBase64(file);
         const uploaded = JSON.parse(localStorage.getItem('admin-uploaded-images') || '[]');
-        uploaded.unshift({ name: file.name, url: url });
+        uploaded.unshift({ name: file.name, url: base64 });
         localStorage.setItem('admin-uploaded-images', JSON.stringify(uploaded));
         renderGallery();
-        selectGalleryImage(url, null);
+        selectGalleryImage(base64, null);
     } catch (e) {
-        alert('Erreur lors de l\'upload. Réessayez.');
+        alert('Erreur lors de l\'enregistrement de l\'image.');
         console.error('Upload error:', e);
     }
     document.getElementById('gallery-upload-content').classList.remove('hidden');
@@ -615,13 +614,31 @@ async function handleGalleryFileSelect(event) {
     document.getElementById('gallery-file-input').value = '';
 }
 
-async function uploadImage(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch('https://telegra.ph/upload', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (!data[0]?.src) throw new Error('Upload failed');
-    return 'https://telegra.ph' + data[0].src;
+function compressAndConvertToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX = 300;
+                let w = img.width, h = img.height;
+                if (w > MAX || h > MAX) {
+                    if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                    else { w = Math.round(w * MAX / h); h = MAX; }
+                }
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
+                resolve(dataUrl);
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 function selectGalleryUrl() {
