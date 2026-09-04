@@ -141,9 +141,11 @@ async function loadCategoriesSelect() {
 function openProductModal() {
     editingProductId = null;
     document.getElementById('product-modal-title').textContent = 'Ajouter un produit';
-    ['p-name','p-price','p-stock','p-image','p-description'].forEach(id => document.getElementById(id).value = '');
+    ['p-name','p-price','p-stock','p-description'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('p-image').value = '';
     document.getElementById('p-category').value = '';
     document.getElementById('product-modal-msg').classList.add('hidden');
+    setPreview('p-image-preview', '');
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
@@ -161,6 +163,7 @@ function editProduct(p) {
     document.getElementById('p-description').value = p.description || '';
     document.getElementById('p-category').value    = p.categoryId || '';
     document.getElementById('product-modal-msg').classList.add('hidden');
+    setPreview('p-image-preview', p.image || '');
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
@@ -245,6 +248,7 @@ function openCategoryModal() {
     document.getElementById('c-name').value  = '';
     document.getElementById('c-image').value = '';
     document.getElementById('category-modal-msg').classList.add('hidden');
+    setPreview('c-image-preview', '');
     document.getElementById('category-modal').classList.remove('hidden');
 }
 
@@ -489,6 +493,156 @@ async function deleteUser(id) {
     await fetch(`${ADMIN_API}/users/${id}`, { method: 'DELETE', headers: adminAuthHeaders() });
     loadUsers();
     loadStats();
+}
+
+// ── Galerie d'images ──────────────────────────
+const IMGBB_API_KEY = 'c01029486a704f15e5e78a6683a26e06';
+const GALLERY_IMAGES = [
+    { name: 'Barcelet en or', url: 'assets/barcelet en or.jpeg' },
+    { name: 'Beauté', url: 'assets/beauté.jpeg' },
+    { name: 'Bijoux', url: 'assets/bijoux.jpeg' },
+    { name: 'Parfum', url: 'assets/parfum.jpeg' },
+    { name: 'Produit hero', url: 'assets/img1.jpeg' }
+];
+let galleryTarget = null;
+let gallerySelectedUrl = null;
+
+function openGallery(targetId) {
+    galleryTarget = targetId;
+    gallerySelectedUrl = null;
+    document.getElementById('gallery-search').value = '';
+    document.getElementById('gallery-url-input').value = '';
+    document.getElementById('gallery-selected-info').classList.add('hidden');
+    document.getElementById('gallery-upload-content').classList.remove('hidden');
+    document.getElementById('gallery-upload-loading').classList.add('hidden');
+    document.getElementById('gallery-file-input').value = '';
+    renderGallery();
+    document.getElementById('gallery-modal').classList.remove('hidden');
+}
+
+function closeGallery() {
+    document.getElementById('gallery-modal').classList.add('hidden');
+    galleryTarget = null;
+}
+
+function renderGallery() {
+    const uploaded = JSON.parse(localStorage.getItem('admin-uploaded-images') || '[]');
+    const search = (document.getElementById('gallery-search').value || '').toLowerCase();
+
+    const uploadedDiv = document.getElementById('gallery-uploaded');
+    const filteredUploaded = uploaded.filter(i => !search || i.name.toLowerCase().includes(search) || i.url.toLowerCase().includes(search));
+    uploadedDiv.innerHTML = filteredUploaded.length ? filteredUploaded.map((img, idx) => `
+        <div class="gallery-item relative rounded-xl overflow-hidden aspect-square bg-[#F4F3EF] img-fade-in" onclick="selectGalleryImage('${img.url.replace(/'/g, "\\'")}', this)">
+            <img src="${img.url}" class="w-full h-full object-cover" alt="${img.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+            <button onclick="event.stopPropagation(); removeUploadedImage(${idx})" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center opacity-80 hover:opacity-100">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                <p class="text-white text-[10px] truncate">${img.name}</p>
+            </div>
+        </div>
+    `).join('') : '<p class="text-xs text-[#B0AEA8] col-span-full py-2">Aucune image uploadée</p>';
+
+    const defaultDiv = document.getElementById('gallery-default');
+    const filteredDefault = GALLERY_IMAGES.filter(i => !search || i.name.toLowerCase().includes(search));
+    defaultDiv.innerHTML = filteredDefault.map(img => `
+        <div class="gallery-item relative rounded-xl overflow-hidden aspect-square bg-[#F4F3EF] img-fade-in" onclick="selectGalleryImage('${img.url}', this)">
+            <img src="${img.url}" class="w-full h-full object-cover" alt="${img.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                <p class="text-white text-[10px] truncate">${img.name}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterGallery() { renderGallery(); }
+
+function selectGalleryImage(url, el) {
+    document.querySelectorAll('.gallery-item').forEach(i => i.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+    gallerySelectedUrl = url;
+    document.getElementById('gallery-selected-thumb').src = url;
+    document.getElementById('gallery-selected-name').textContent = url.split('/').pop();
+    document.getElementById('gallery-selected-info').classList.remove('hidden');
+}
+
+function confirmGallerySelection() {
+    if (!gallerySelectedUrl || !galleryTarget) return;
+    document.getElementById(galleryTarget).value = gallerySelectedUrl;
+    const previewId = galleryTarget === 'p-image' ? 'p-image-preview' : 'c-image-preview';
+    setPreview(previewId, gallerySelectedUrl);
+    closeGallery();
+}
+
+function setPreview(previewId, url) {
+    const el = document.getElementById(previewId);
+    if (!url) {
+        el.innerHTML = '<i class="fa-solid fa-image text-[#B0AEA8] text-xl"></i>';
+        el.className = el.className.replace('img-fade-in', '').trim();
+        if (previewId === 'p-image-preview') el.className += ' w-20 h-20 rounded-xl bg-[#F4F3EF] flex items-center justify-center overflow-hidden flex-shrink-0';
+        else el.className += ' w-16 h-16 rounded-xl bg-[#F4F3EF] flex items-center justify-center overflow-hidden flex-shrink-0';
+        return;
+    }
+    el.innerHTML = `<img src="${url}" class="w-full h-full object-cover img-fade-in" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid fa-image text-[#B0AEA8] text-xl\\'></i>'">`;
+}
+
+async function handleGalleryFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert('Image trop volumineuse (max 5 Mo).'); return; }
+    document.getElementById('gallery-upload-content').classList.add('hidden');
+    document.getElementById('gallery-upload-loading').classList.remove('hidden');
+    try {
+        const url = await uploadToImgbb(file);
+        const uploaded = JSON.parse(localStorage.getItem('admin-uploaded-images') || '[]');
+        uploaded.unshift({ name: file.name, url: url });
+        localStorage.setItem('admin-uploaded-images', JSON.stringify(uploaded));
+        renderGallery();
+        selectGalleryImage(url, null);
+    } catch (e) {
+        alert('Erreur lors de l\'upload. Vérifiez votre connexion.');
+        console.error('Upload error:', e);
+    }
+    document.getElementById('gallery-upload-content').classList.remove('hidden');
+    document.getElementById('gallery-upload-loading').classList.add('hidden');
+    document.getElementById('gallery-file-input').value = '';
+}
+
+async function uploadToImgbb(file) {
+    const formData = new FormData();
+    formData.append('key', IMGBB_API_KEY);
+    formData.append('image', file);
+    const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!data.success) throw new Error('Upload failed');
+    return data.data.url;
+}
+
+function selectGalleryUrl() {
+    const url = document.getElementById('gallery-url-input').value.trim();
+    if (!url) return;
+    if (!url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)/i) && !url.includes('imgbb') && !url.includes('imgur')) {
+        if (!confirm('Cette URL ne semble pas être une image. Continuer quand même ?')) return;
+    }
+    selectGalleryImage(url, null);
+    confirmGallerySelection();
+}
+
+function removeUploadedImage(idx) {
+    const uploaded = JSON.parse(localStorage.getItem('admin-uploaded-images') || '[]');
+    uploaded.splice(idx, 1);
+    localStorage.setItem('admin-uploaded-images', JSON.stringify(uploaded));
+    renderGallery();
+}
+
+function handleGalleryDrop(event) {
+    const file = event.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const input = document.getElementById('gallery-file-input');
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
 }
 
 // ── Init ──────────────────────────────────────
