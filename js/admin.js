@@ -187,13 +187,14 @@ async function saveProduct() {
         const url    = editingProductId ? `${ADMIN_API}/products/${editingProductId}` : `${ADMIN_API}/products`;
         const method = editingProductId ? 'PUT' : 'POST';
         const res    = await fetch(url, { method, headers: adminAuthHeaders(), body: JSON.stringify(body) });
-        if (!res.ok) throw new Error('Erreur serveur');
+        const data   = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error || `Erreur ${res.status}`);
         msg.textContent = editingProductId ? 'Produit modifié !' : 'Produit ajouté !';
         msg.className = 'text-sm text-center text-green-600';
         msg.classList.remove('hidden');
         setTimeout(() => { closeProductModal(); loadProducts(); loadStats(); }, 1000);
     } catch (e) {
-        msg.textContent = 'Erreur lors de l\'enregistrement.';
+        msg.textContent = e.message || 'Erreur lors de l\'enregistrement.';
         msg.className = 'text-sm text-center text-red-500';
         msg.classList.remove('hidden');
     }
@@ -264,11 +265,17 @@ async function saveCategory() {
     };
     if (!body.name) { msg.textContent = 'Nom requis.'; msg.className = 'text-sm text-center text-red-500'; msg.classList.remove('hidden'); return; }
     try {
-        await fetch(`${ADMIN_API}/categories`, { method: 'POST', headers: adminAuthHeaders(), body: JSON.stringify(body) });
+        const res  = await fetch(`${ADMIN_API}/categories`, { method: 'POST', headers: adminAuthHeaders(), body: JSON.stringify(body) });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error || `Erreur ${res.status}`);
         closeCategoryModal();
         loadCategories();
         loadCategoriesSelect();
-    } catch (e) {}
+    } catch (e) {
+        msg.textContent = e.message || 'Erreur lors de l\'enregistrement.';
+        msg.className = 'text-sm text-center text-red-500';
+        msg.classList.remove('hidden');
+    }
 }
 
 async function deleteCategory(id) {
@@ -614,7 +621,7 @@ function compressAndConvertToBase64(file) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX = 800;
+                const MAX = 500;
                 let w = img.width, h = img.height;
                 if (w > MAX || h > MAX) {
                     if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
@@ -623,12 +630,7 @@ function compressAndConvertToBase64(file) {
                 canvas.width = w;
                 canvas.height = h;
                 canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                const compressed = canvas.toDataURL('image/jpeg', 0.7);
-                if (compressed.length > 1024 * 1024) {
-                    reject(new Error('Image trop grande même compressée'));
-                } else {
-                    resolve(compressed);
-                }
+                resolve(canvas.toDataURL('image/jpeg', 0.5));
             };
             img.onerror = reject;
             img.src = e.target.result;
