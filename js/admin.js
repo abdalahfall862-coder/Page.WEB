@@ -496,7 +496,6 @@ async function deleteUser(id) {
 }
 
 // ── Galerie d'images ──────────────────────────
-const IMGBB_API_KEY = 'c01029486a704f15e5e78a6683a26e06';
 const GALLERY_IMAGES = [
     { name: 'Barcelet en or', url: 'assets/barcelet en or.jpeg' },
     { name: 'Beauté', url: 'assets/beauté.jpeg' },
@@ -593,14 +592,14 @@ async function handleGalleryFileSelect(event) {
     document.getElementById('gallery-upload-content').classList.add('hidden');
     document.getElementById('gallery-upload-loading').classList.remove('hidden');
     try {
-        const url = await uploadToImgbb(file);
+        const base64 = await compressAndConvertToBase64(file);
         const uploaded = JSON.parse(localStorage.getItem('admin-uploaded-images') || '[]');
-        uploaded.unshift({ name: file.name, url: url });
+        uploaded.unshift({ name: file.name, url: base64 });
         localStorage.setItem('admin-uploaded-images', JSON.stringify(uploaded));
         renderGallery();
-        selectGalleryImage(url, null);
+        selectGalleryImage(base64, null);
     } catch (e) {
-        alert('Erreur lors de l\'upload. Vérifiez votre connexion.');
+        alert('Erreur lors de l\'enregistrement de l\'image.');
         console.error('Upload error:', e);
     }
     document.getElementById('gallery-upload-content').classList.remove('hidden');
@@ -608,22 +607,40 @@ async function handleGalleryFileSelect(event) {
     document.getElementById('gallery-file-input').value = '';
 }
 
-async function uploadToImgbb(file) {
-    const formData = new FormData();
-    formData.append('key', IMGBB_API_KEY);
-    formData.append('image', file);
-    const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (!data.success) throw new Error('Upload failed');
-    return data.data.url;
+function compressAndConvertToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX = 800;
+                let w = img.width, h = img.height;
+                if (w > MAX || h > MAX) {
+                    if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                    else { w = Math.round(w * MAX / h); h = MAX; }
+                }
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.7);
+                if (compressed.length > 1024 * 1024) {
+                    reject(new Error('Image trop grande même compressée'));
+                } else {
+                    resolve(compressed);
+                }
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 function selectGalleryUrl() {
     const url = document.getElementById('gallery-url-input').value.trim();
     if (!url) return;
-    if (!url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)/i) && !url.includes('imgbb') && !url.includes('imgur')) {
-        if (!confirm('Cette URL ne semble pas être une image. Continuer quand même ?')) return;
-    }
     selectGalleryImage(url, null);
     confirmGallerySelection();
 }
