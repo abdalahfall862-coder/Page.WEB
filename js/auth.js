@@ -37,7 +37,7 @@ async function login() {
         const result = await loginUser({ email, password });
         localStorage.setItem('token', result.token);
         localStorage.setItem('user', JSON.stringify(result.user));
-        window.location.href = 'products.html';
+        window.location.href = 'index.html';
     } catch (error) {
         showMessage(message, error.message, 'red');
     }
@@ -60,7 +60,7 @@ async function register() {
     try {
         await registerUser({ name, email, password });
         showMessage(message, 'Inscription réussie ! Redirection...', 'green');
-        setTimeout(() => window.location.href = 'login.html', 1500);
+        setTimeout(() => window.location.href = 'index.html', 1500);
     } catch (error) {
         showMessage(message, error.message, 'red');
     }
